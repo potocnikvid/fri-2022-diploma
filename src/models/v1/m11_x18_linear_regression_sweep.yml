@@ -1,0 +1,14 @@
+program: src/models/m11_x18_linear_regression_sweep.py
+method: bayes
+metric:
+  goal: minimize
+  name: loss_epoch
+parameters:
+  weight_decay:
+    min: 0.0
+    max: 0.2
+    distribution: uniform
+  lr:
+    max: 0.0001
+    min: 0.000001
+    distribution: uniform

@@ -1,0 +1,6 @@
+[submodule "submodules/stylegan2-ada-pytorch"]
+	path = submodules/stylegan2-ada-pytorch
+	url = https://github.com/NVlabs/stylegan2-ada-pytorch.git
+[submodule "dataset/nokdb"]
+	path = dataset/nokdb
+	url = git@github.com:potocnikvid/nokdb.git
