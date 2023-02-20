@@ -9,15 +9,16 @@ import shutil
 from pprint import pprint
 
 class StyleGAN2():
-    def __init__(self, verbose=True, tmp_path="./.tmp/stylegan2-ada-pytorch") -> None:
+    def __init__(self, verbose=True, tmp_path="./.tmp/stylegan2-ada-pytorch/") -> None:
         self.verbose = verbose
 
-        self.root_path = "./submodules/stylegan2-ada-pytorch"
+        self.root_path = "./submodules/stylegan2-ada-pytorch/"
         self.tmp_path = tmp_path
         self.image_tag = "stylegan2-ada-pytorch:latest"
 
         self.client = docker.from_env()
-        print(self.client.images)
+        print(self.root_path)
+        print(self.tmp_path)
         print("Got StyleGAN2 docker client, building image...")
         self.image, _ = self.client.images.build(path=self.root_path, tag=self.image_tag)
         print("StyleGAN2 Docker image built.")
