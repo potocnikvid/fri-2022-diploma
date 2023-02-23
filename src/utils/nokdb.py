@@ -15,6 +15,11 @@ def max_nokdb_iid():
     nokdb_images_df = pd.read_csv(f"{root}/src/dataset/nokdb/nokdb-images.csv")
     return max(nokdb_images_df["iid"])
 
+def people_names():
+    """Return a list of all people names in the NokDB dataset."""
+    nokdb_persons_df = pd.read_csv(f"{root}/src/dataset/nokdb/nokdb-persons.csv")
+    return list(nokdb_persons_df["name"])
+
 def add_person(person: list):
     """Write a person to the NokDB persons CSV."""
     with open(f"{root}/src/dataset/nokdb/nokdb-persons.csv", "a") as f:

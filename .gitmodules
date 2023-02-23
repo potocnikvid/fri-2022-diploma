@@ -4,3 +4,9 @@
 [submodule "dataset/nokdb"]
 	path = dataset/nokdb
 	url = git@github.com:potocnikvid/nokdb.git
+[submodule "src/dataset/ppldb"]
+	path = src/dataset/ppldb
+	url = https://github.com/potocnikvid/ppldb.git
+[submodule "src/dataset/nokdb"]
+	path = src/dataset/nokdb
+	url = https://github.com/potocnikvid/nokdb.git
