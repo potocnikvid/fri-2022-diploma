@@ -63,6 +63,6 @@ class BaseEvaluator():
         image_hat_embeddings = self.get_embeddings(images_hat, model, model_name)
         res = []
         for i in range(len(image_embeddings)):
-            res.append(self.compare_embeddings(image_embeddings[i], image_hat_embeddings[i]))
+            res.append(self.compare_embeddings(image_embeddings[i][0]['embedding'], image_hat_embeddings[i][0]['embedding']))
         return res
 

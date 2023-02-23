@@ -94,7 +94,7 @@ class NokAugParDataset(Dataset):
         assert w.shape == (18, 512)
         return pid, w, lables, person_ws[i0], person_ws[i1], m
 
-    def _get_child_entity_data(self, pids):
+    def _get_child_entity_data(self, pid):
         idx = self.pids_map[pid]
         iids = self.pids_iids_map[pid]
         person_ws = self.data[idx]

@@ -3,6 +3,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,jupyternotebooks,vscode,visualstudiocode,latex
 
 src/dataset/nokdb/*
+src/dataset/ppldb/*
 
 ### JupyterNotebooks ###
 # gitignore template for Jupyter Notebooks

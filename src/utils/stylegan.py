@@ -3,16 +3,18 @@ from dotenv import load_dotenv
 load_dotenv()
 from PIL import Image
 import numpy as np
-
+import cv2
 import os
 import shutil
+from glob import glob
 from pprint import pprint
 
 class StyleGAN2():
-    def __init__(self, verbose=True, tmp_path="./.tmp/stylegan2-ada-pytorch/") -> None:
+    def __init__(self, verbose=True, tmp_path="./src/.tmp/stylegan2-ada-pytorch/") -> None:
         self.verbose = verbose
 
-        self.root_path = "./submodules/stylegan2-ada-pytorch/"
+        self.root = os.getenv('ROOT')
+        self.root_path = "./src/submodules/stylegan2-ada-pytorch/"
         self.tmp_path = tmp_path
         self.image_tag = "stylegan2-ada-pytorch:latest"
 
@@ -25,8 +27,17 @@ class StyleGAN2():
 
 
     def project(self, target, seed=303):
-        self._project_from_command([f"--target={target}", "--save-video=False", "--seed={seed}"])
+        self._project_from_command([f"--target={target}", "--save-video=False", "--seed={seed}", f"--outdir={self.tmp_path}"])
         return np.load(f"{self.tmp_path}/projected_w.npz")["w"]
+
+    def project_person(self, target_folder):
+        result = []
+        for img in glob(f"{target_folder}/aligned/*.jpg"):
+            img_name = img.split("/")[-1].split(".")[0]
+            outdir = f"{target_folder}/latents/latents_{img_name}"
+            self._project_from_command([f"--target={img}", f"--outdir={outdir}", "--save-video=True"])
+            result.append(np.load(f"{outdir}/projected_w.npz")["w"])
+        return result
 
     def generate_from_seed(self, seed):
         return self._generate_from_command([f"--seeds={seed}"])
@@ -86,8 +97,7 @@ class StyleGAN2():
         return self._run_command([
             "python3",
             f"{self.root_path}/projector.py",
-            "--network=https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/ffhq.pkl",
-            f"--outdir={self.tmp_path}"
+            "--network=https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/ffhq.pkl"
         ] + command)
 
 
