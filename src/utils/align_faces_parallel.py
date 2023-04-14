@@ -42,8 +42,9 @@ def get_landmark(filepath, predictor):
 	detector = dlib.get_frontal_face_detector()
 
 	img = dlib.load_rgb_image(filepath)
+	print(img)
 	dets = detector(img, 1)
-
+	print("Number of faces detected: {}".format(len(dets)))
 	for k, d in enumerate(dets):
 		shape = predictor(img, d)
 
@@ -192,10 +193,12 @@ def align_faces(root_path, num_threads=1):
 		fname = os.path.join(out_crops_path, os.path.relpath(file_path, root_path))
 		res_path = '{}.jpg'.format(os.path.splitext(fname)[0])
 		if os.path.splitext(file_path)[1] == '.txt' or os.path.exists(res_path):
-			print(res_path)
+			print('Skipping {} - image already aligned.'.format(file_path))
 			continue
 		file_paths.append((file_path, res_path))
-
+	if len(file_paths) == 0:
+		print('No images to align')
+		return
 	file_chunks = list(chunks(file_paths, int(math.ceil(len(file_paths) / num_threads))))
 	print(len(file_chunks))
 	pool = mp.Pool(num_threads)

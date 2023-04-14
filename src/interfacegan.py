@@ -12,7 +12,9 @@ from submodules.interfacegan.models.model_settings import MODEL_POOL
 from submodules.interfacegan.models.pggan_generator import PGGANGenerator
 from submodules.interfacegan.models.stylegan_generator import StyleGANGenerator
 from submodules.interfacegan.utils.manipulator import linear_interpolate
-
+from dotenv import load_dotenv
+load_dotenv()
+root = os.getenv("ROOT")
 
 def build_generator(model_name):
     """Builds the generator by model name."""
@@ -62,7 +64,7 @@ def imshow(images, col, viz_size=256):
 
 def main():
     #@title { display-mode: "form", run: "auto" }
-    submodule_path = 'submodules/interfacegan/'
+    submodule_path = f'{root}/submodules/interfacegan/'
     model_name = "stylegan_ffhq" #@param ['pggan_celebahq','stylegan_celebahq', 'stylegan_ffhq']
     latent_space_type = "W" #@param ['Z', 'W']
 

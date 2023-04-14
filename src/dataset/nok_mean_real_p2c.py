@@ -13,7 +13,7 @@ import shutil
 from pytorch_lightning.core.datamodule import LightningDataModule
 import torch, torchvision
 
-class NokMeanRealDataset(Dataset):
+class NokMeanRealDatasetP2C(Dataset):
     def __init__(
             self,
             root: str = os.getenv('ROOT') + "/src/dataset/nokdb",
@@ -36,8 +36,7 @@ class NokMeanRealDataset(Dataset):
         del self.samples_df["f_iid"]
         del self.samples_df["m_iid"]
         del self.samples_df["c_iid"]
-        del self.samples_df["f_pid"]
-        del self.samples_df["m_pid"]
+        del self.samples_df["c_pid"]
         self.samples_df = self.samples_df.drop_duplicates()
         self.persons_df = pd.read_csv(f"{root}/nokdb-persons.csv")
         
@@ -54,9 +53,10 @@ class NokMeanRealDataset(Dataset):
     def __getitem__(self, idx):
         ids = self.samples_df.iloc[idx]
         return (
-            self._get_latent_vector(ids["c_pid"], None),
-            self._get_gender(ids["c_pid"]),
-            ids["c_pid"],
+            self._get_latent_vector(ids["f_pid"], self.normalize),
+            self._get_latent_vector(ids["m_pid"], self.normalize),
+            ids["f_pid"],
+            ids["m_pid"],
         )
 
     def _get_latent_vector(self, pid, normalize):
@@ -67,7 +67,7 @@ class NokMeanRealDataset(Dataset):
         return self.persons_df[self.persons_df.pid == pid].sex_code.item()
 
     def _load_latent_vectors(self):
-        pids = pd.concat([self.samples_df["c_pid"]], ignore_index=True).unique()
+        pids = pd.concat([self.samples_df["f_pid"], self.samples_df["m_pid"]], ignore_index=True).unique()
         self.pid_map = dict()
         self.data = []
         p_count = 0
@@ -106,7 +106,7 @@ class NokMeanRealDataset(Dataset):
         os.remove(local_file)
 
 
-class NokMeanDataModule(LightningDataModule):
+class NokMeanDataModuleP2C(LightningDataModule):
 
     def __init__(self,
         data_dir: str = os.getenv('ROOT') + "/src/dataset/nokdb",
@@ -120,14 +120,14 @@ class NokMeanDataModule(LightningDataModule):
 
     def prepare_data(self):
         if os.path.exists(self.data_dir): 
-            return NokMeanRealDataset(root=self.data_dir, download=True)
+            return NokMeanRealDatasetP2C(root=self.data_dir, download=True)
 
     def setup(self, stage=None):
         if stage == 'fit' or stage is None:
-            self.data_train         = NokMeanRealDataset(root=self.data_dir, split="train")
-            self.data_validation    = NokMeanRealDataset(root=self.data_dir, split="validation")
+            self.data_train         = NokMeanRealDatasetP2C(root=self.data_dir, split="train")
+            self.data_validation    = NokMeanRealDatasetP2C(root=self.data_dir, split="validation")
         elif stage == 'test':
-            self.data_test          = NokMeanRealDataset(root=self.data_dir, split="test")
+            self.data_test          = NokMeanRealDatasetP2C(root=self.data_dir, split="test")
 
     def train_dataloader(self):
         return DataLoader(self.data_train,      batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True, shuffle=True, drop_last=False)

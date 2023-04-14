@@ -1,6 +1,4 @@
 import docker
-from dotenv import load_dotenv
-load_dotenv()
 from PIL import Image
 import numpy as np
 import cv2
@@ -8,13 +6,16 @@ import os
 import shutil
 from glob import glob
 from pprint import pprint
+from dotenv import load_dotenv
+load_dotenv()
+
 
 class StyleGAN2():
     def __init__(self, verbose=True, tmp_path="./src/.tmp/stylegan2-ada-pytorch/") -> None:
         self.verbose = verbose
 
         self.root = os.getenv('ROOT')
-        self.root_path = "./src/submodules/stylegan2-ada-pytorch/"
+        self.root_path = f"./src/submodules/stylegan2-ada-pytorch"
         self.tmp_path = tmp_path
         self.image_tag = "stylegan2-ada-pytorch:latest"
 
@@ -35,7 +36,9 @@ class StyleGAN2():
         for img in glob(f"{target_folder}/aligned/*.jpg"):
             img_name = img.split("/")[-1].split(".")[0]
             outdir = f"{target_folder}/latents/latents_{img_name}"
-            self._project_from_command([f"--target={img}", f"--outdir={outdir}", "--save-video=True"])
+            if os.path.exists(outdir):
+                continue
+            self._project_from_command([f"--target={img}", f"--outdir={outdir}", "--save-video=False"])
             result.append(np.load(f"{outdir}/projected_w.npz")["w"])
         return result
 
@@ -58,6 +61,7 @@ class StyleGAN2():
         return Image.open(f"{self.tmp_path}/seed{seed:04d}.png").convert('RGB')
 
     def _run_command(self, command):
+        print(command)
         container = self.client.containers.run(
             image=self.image_tag,
             auto_remove=True,

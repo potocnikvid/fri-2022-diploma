@@ -13,7 +13,7 @@ import shutil
 from pytorch_lightning.core.datamodule import LightningDataModule
 import torch, torchvision
 
-class NokMeanDataset(Dataset):
+class NokMeanRealDatasetC2P(Dataset):
     def __init__(
             self,
             root: str = os.getenv('ROOT') + "/src/dataset/nokdb",
@@ -36,6 +36,8 @@ class NokMeanDataset(Dataset):
         del self.samples_df["f_iid"]
         del self.samples_df["m_iid"]
         del self.samples_df["c_iid"]
+        del self.samples_df["f_pid"]
+        del self.samples_df["m_pid"]
         self.samples_df = self.samples_df.drop_duplicates()
         self.persons_df = pd.read_csv(f"{root}/nokdb-persons.csv")
         
@@ -44,10 +46,6 @@ class NokMeanDataset(Dataset):
             npz = np.load(f"{root}/norm/nokdb-normalization.npz")
             self.normalize = torchvision.transforms.Normalize(torch.from_numpy(npz["mean"]), torch.from_numpy(npz["std"]))
 
-        pids_all = pd.concat([self.samples_df["f_pid"], self.samples_df["m_pid"], self.samples_df["c_pid"]], ignore_index=True).unique()
-        pids_p2c = pd.concat([self.samples_df["f_pid"], self.samples_df["m_pid"]], ignore_index=True).unique()
-        pids_c2p = self.samples_df["c_pid"].unique()
-        self.pids = pids_c2p if self.split.endswith("c2p") else pids_p2c if self.split.endswith("p2c") else pids_all
         self._load_latent_vectors()
 
     def __len__(self):
@@ -55,36 +53,11 @@ class NokMeanDataset(Dataset):
 
     def __getitem__(self, idx):
         ids = self.samples_df.iloc[idx]
-        if self.split.endswith("c2p"):
-            return (
-                None,
-                None,
-                self._get_latent_vector(ids["c_pid"], self.normalize),
-                self._get_gender(ids["c_pid"]),
-                None,
-                None,
-                ids["c_pid"]
-            )
-        elif self.split.endswith("p2c"):
-            return (
-                self._get_latent_vector(ids["f_pid"], self.normalize),
-                self._get_latent_vector(ids["m_pid"], self.normalize),
-                None,
-                None,
-                ids["f_pid"],
-                ids["m_pid"],
-                None,
-            )
-        else:
-            return (
-                self._get_latent_vector(ids["f_pid"], self.normalize),
-                self._get_latent_vector(ids["m_pid"], self.normalize),
-                self._get_latent_vector(ids["c_pid"], None),
-                self._get_gender(ids["c_pid"]),
-                ids["f_pid"],
-                ids["m_pid"],
-                ids["c_pid"],
-            )
+        return (
+            self._get_latent_vector(ids["c_pid"], None),
+            self._get_gender(ids["c_pid"]),
+            ids["c_pid"],
+        )
 
     def _get_latent_vector(self, pid, normalize):
         idx = self.pid_map[int(pid)]
@@ -94,11 +67,12 @@ class NokMeanDataset(Dataset):
         return self.persons_df[self.persons_df.pid == pid].sex_code.item()
 
     def _load_latent_vectors(self):
+        pids = pd.concat([self.samples_df["c_pid"]], ignore_index=True).unique()
         self.pid_map = dict()
         self.data = []
         p_count = 0
         p_img_count = []
-        for i, pid in enumerate(self.pids):
+        for i, pid in enumerate(pids):
             pid = int(pid)
             ws = []
             for npz in glob(f"{self.root}/{pid}/*.npz"):
@@ -146,14 +120,14 @@ class NokMeanDataModule(LightningDataModule):
 
     def prepare_data(self):
         if os.path.exists(self.data_dir): 
-            return NokMeanDataset(root=self.data_dir, download=True)
+            return NokMeanRealDatasetC2P(root=self.data_dir, download=True)
 
     def setup(self, stage=None):
         if stage == 'fit' or stage is None:
-            self.data_train         = NokMeanDataset(root=self.data_dir, split="train")
-            self.data_validation    = NokMeanDataset(root=self.data_dir, split="validation")
+            self.data_train         = NokMeanRealDatasetC2P(root=self.data_dir, split="train")
+            self.data_validation    = NokMeanRealDatasetC2P(root=self.data_dir, split="validation")
         elif stage == 'test':
-            self.data_test          = NokMeanDataset(root=self.data_dir, split="test")
+            self.data_test          = NokMeanRealDatasetC2P(root=self.data_dir, split="test")
 
     def train_dataloader(self):
         return DataLoader(self.data_train,      batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True, shuffle=True, drop_last=False)

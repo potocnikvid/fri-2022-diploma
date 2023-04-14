@@ -6,9 +6,9 @@ Dataset contains over 120k image kin triplet combinations, all of the images hav
 
 | Characteristic                        | Value               |
 |---------------------------------------|--------------------:| 
-| # persons                             | 553                 |
-| # images                              | 5,017               |
-| # images per person                   | 6.22 (4.30)         |
+| # persons                             | 1116                |
+| # images                              | 3690                |
+| # images per person                   | 3.31                |
 | # image sample combinations           | 127,719             |
 | # father/mother/son person triplets   | 116                 |
 | # father/mother/son person triplets   | 133                 |
@@ -22,6 +22,7 @@ Dataset contains over 120k image kin triplet combinations, all of the images hav
 | `├── nokdb-samples-test.csv`         | List of triplets test (father, mother, child)       |
 | `├── nokdb-samples-train.csv`        | List of triplets train (father, mother, child)      |
 | `├── nokdb-samples-validation.csv`   | List of triplets validation (father, mother, child) |
+| `├── nokdb-samples-all.csv`          | List of triplets all (father, mother, child)        |
 | `├── nokdb-normalization.npz`        | W vector normalization mean and std for each dim    |
 
 ## Data

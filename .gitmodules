@@ -10,3 +10,15 @@
 [submodule "src/dataset/nokdb"]
 	path = src/dataset/nokdb
 	url = https://github.com/potocnikvid/nokdb.git
+[submodule "stylegan3"]
+	path = stylegan3
+	url = https://github.com/NVlabs/stylegan3.git
+[submodule "submodules/stylegan3"]
+	path = submodules/stylegan3
+	url = https://github.com/NVlabs/stylegan3.git
+[submodule "submodules/interfacegan"]
+	path = submodules/interfacegan
+	url = https://github.com/genforce/interfacegan.git
+[submodule "submodules/hyperstyle"]
+	path = submodules/hyperstyle
+	url = https://github.com/yuval-alaluf/hyperstyle.git

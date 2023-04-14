@@ -22,6 +22,9 @@ import torch.nn.functional as F
 import dnnlib
 import legacy
 
+import matplotlib.pyplot as plt
+
+#----------------------------------------------------------------------------
 def project(
     G,
     target: torch.Tensor, # [C,H,W] and dynamic range [0,255], W & H must match G output resolution
@@ -76,6 +79,9 @@ def project(
         buf[:] = torch.randn_like(buf)
         buf.requires_grad = True
 
+    distances = []
+    losses = []
+
     for step in range(num_steps):
         # Learning rate schedule.
         t = step / num_steps
@@ -119,6 +125,8 @@ def project(
         optimizer.step()
         logprint(f'step {step+1:>4d}/{num_steps}: dist {dist:<4.2f} loss {float(loss):<5.2f}')
 
+        distances.append(dist)
+        losses.append(loss)
         # Save projected W for each optimization step.
         w_out[step] = w_opt.detach()[0]
 
@@ -128,7 +136,7 @@ def project(
                 buf -= buf.mean()
                 buf *= buf.square().mean().rsqrt()
 
-    return w_out.repeat([1, G.mapping.num_ws, 1])
+    return w_out.repeat([1, G.mapping.num_ws, 1]), distances, losses
 
 #----------------------------------------------------------------------------
 
@@ -174,7 +182,7 @@ def run_projection(
 
     # Optimize projection.
     start_time = perf_counter()
-    projected_w_steps = project(
+    projected_w_steps, distances, losses = project(
         G,
         target=torch.tensor(target_uint8.transpose([2, 0, 1]), device=device), # pylint: disable=not-callable
         num_steps=num_steps,
@@ -203,6 +211,20 @@ def run_projection(
     synth_image = synth_image.permute(0, 2, 3, 1).clamp(0, 255).to(torch.uint8)[0].cpu().numpy()
     PIL.Image.fromarray(synth_image, 'RGB').save(f'{outdir}/proj.png')
     np.savez(f'{outdir}/projected_w.npz', w=projected_w.unsqueeze(0).cpu().numpy())
+
+    # Plot loss
+    plt.yscale('log')
+    plt.plot(distances)
+    plt.plot(losses)
+    plt.legend(['dist', 'loss'])
+    plt.savefig(f'{outdir}/loss.png')
+
+    # Save information about the projected image
+    with open(f"{os.path.join(outdir, os.pardir)}/info.csv", "a") as f:
+        person_name = os.path.basename(target_fname).split(".")[0]
+        if os.stat(f"{os.path.join(outdir, os.pardir)}/info.csv").st_size == 0:
+            f.write(f"person_name,best_dist,best_loss\n")
+        f.write(f"{person_name},{distances[-1]},{losses[-1]}\n")
 
 #----------------------------------------------------------------------------
 
