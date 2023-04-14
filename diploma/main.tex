@@ -1,0 +1,747 @@
+\documentclass[a4paper,12pt,openright]{book}
+%\documentclass[a4paper, 12pt, openright, draft]{book}  Nalogo preverite tudi z opcijo draft, ki pokaže, katere vrstice so predolge! Pozor, v draft opciji, se slike ne pokažejo!
+ 
+\usepackage[utf8]{inputenc}   % omogoča uporabo slovenskih črk kodiranih v formatu UTF-8
+\usepackage[slovene,english]{babel}    % naloži, med drugim, slovenske delilne vzorce
+\usepackage[pdftex]{graphicx}  % omogoča vlaganje slik različnih formatov
+\usepackage{fancyhdr}          % poskrbi, na primer, za glave strani
+\usepackage{amssymb}           % dodatni matematični simboli
+\usepackage{amsmath}           % eqref, npr.
+\usepackage{hyperxmp}
+\usepackage[hyphens]{url}
+\usepackage{csquotes}
+\usepackage[pdftex, colorlinks=true,
+						citecolor=black, filecolor=black, 
+						linkcolor=black, urlcolor=black,
+						pdfproducer={LaTeX}, pdfcreator={LaTeX}]{hyperref}
+
+\usepackage{color}
+\usepackage{soul}
+
+\usepackage[
+backend=biber,
+style=numeric,
+sorting=nty,
+]{biblatex}
+
+
+\addbibresource{literatura.bib} %Imports bibliography file
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	DIPLOMA INFO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\ttitle}{Generiranje slik staršev na podlagi slik otrok}
+\newcommand{\ttitleEn}{Generation of parent images based on images of their children}
+\newcommand{\tsubject}{\ttitle}
+\newcommand{\tsubjectEn}{\ttitleEn}
+\newcommand{\tauthor}{Vid Potočnik}
+\newcommand{\tkeywords}{GAN, StyleGAN, PyTorch, ChildGAN, KinshipGAN, DNA-Net, Families In The Wild, linearna regresija, napovedni modeli, genetika}
+\newcommand{\tkeywordsEn}{GAN, StyleGAN, PyTorch, ChildGAN, KinshipGAN, DNA-Net, Families In The Wild, linear regression, prediction models, genetics}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	HYPERREF SETUP
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hypersetup{pdftitle={\ttitle}}
+\hypersetup{pdfsubject=\ttitleEn}
+\hypersetup{pdfauthor={\tauthor}}
+\hypersetup{pdfkeywords=\tkeywordsEn}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% postavitev strani
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+
+\addtolength{\marginparwidth}{-20pt} % robovi za tisk
+\addtolength{\oddsidemargin}{40pt}
+\addtolength{\evensidemargin}{-40pt}
+
+\renewcommand{\baselinestretch}{1.3} % ustrezen razmik med vrsticami
+\setlength{\headheight}{15pt}        % potreben prostor na vrhu
+\renewcommand{\chaptermark}[1]%
+{\markboth{\MakeUppercase{\thechapter.\ #1}}{}} \renewcommand{\sectionmark}[1]%
+{\markright{\MakeUppercase{\thesection.\ #1}}} \renewcommand{\headrulewidth}{0.5pt} \renewcommand{\footrulewidth}{0pt}
+\fancyhf{}
+\fancyhead[LE,RO]{\sl \thepage} 
+%\fancyhead[LO]{\sl \rightmark} \fancyhead[RE]{\sl \leftmark}
+\fancyhead[RE]{\sc \tauthor}              % dodal Solina
+\fancyhead[LO]{\sc Diplomska naloga}     % dodal Solina
+
+
+\newcommand{\BibLaTeX}{{\sc Bib}\LaTeX}
+\newcommand{\BibTeX}{{\sc Bib}\TeX}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% naslovi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+
+\newcommand{\autfont}{\Large}
+\newcommand{\titfont}{\LARGE\bf}
+\newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
+\setcounter{tocdepth}{1}	      % globina kazala
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% konstrukti
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+\newtheorem{izrek}{Izrek}[chapter]
+\newtheorem{trditev}{Trditev}[izrek]
+\newenvironment{dokaz}{\emph{Dokaz.}\ }{\hspace{\fill}{$\Box$}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PDF-A
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% define medatata
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\def\Title{\ttitle}
+\def\Author{\tauthor, matjaz.kralj@fri.uni-lj.si}
+\def\Subject{\ttitleEn}
+\def\Keywords{\tkeywordsEn}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% \convertDate converts D:20080419103507+02'00' to 2008-04-19T10:35:07+02:00
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\def\convertDate{%
+    \getYear
+}
+
+{\catcode`\D=12
+ \gdef\getYear D:#1#2#3#4{\edef\xYear{#1#2#3#4}\getMonth}
+}
+\def\getMonth#1#2{\edef\xMonth{#1#2}\getDay}
+\def\getDay#1#2{\edef\xDay{#1#2}\getHour}
+\def\getHour#1#2{\edef\xHour{#1#2}\getMin}
+\def\getMin#1#2{\edef\xMin{#1#2}\getSec}
+\def\getSec#1#2{\edef\xSec{#1#2}\getTZh}
+\def\getTZh +#1#2{\edef\xTZh{#1#2}\getTZm}
+\def\getTZm '#1#2'{%
+    \edef\xTZm{#1#2}%
+    \edef\convDate{\xYear-\xMonth-\xDay T\xHour:\xMin:\xSec+\xTZh:\xTZm}%
+}
+
+%\expandafter\convertDate\pdfcreationdate 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% get pdftex version string
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\newcount\countA
+\countA=\pdftexversion
+\advance \countA by -100
+\def\pdftexVersionStr{pdfTeX-1.\the\countA.\pdftexrevision}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% XMP data
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+\usepackage{xmpincl}
+%\includexmp{pdfa-1b}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% pdfInfo
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+\pdfinfo{%
+    /Title    (\ttitle)
+    /Author   (\tauthor, damjan@cvetan.si)
+    /Subject  (\ttitleEn)
+    /Keywords (\tkeywordsEn)
+    /ModDate  (\pdfcreationdate)
+    /Trapped  /False
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% znaki za copyright stran
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+
+\newcommand{\CcImageCc}[1]{%
+	\includegraphics[scale=#1]{cc_cc_30.pdf}%
+}
+\newcommand{\CcImageBy}[1]{%
+	\includegraphics[scale=#1]{cc_by_30.pdf}%
+}
+\newcommand{\CcImageSa}[1]{%
+	\includegraphics[scale=#1]{cc_sa_30.pdf}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\selectlanguage{slovene}
+\frontmatter
+\setcounter{page}{1} %
+\renewcommand{\thepage}{}       % preprečimo težave s številkami strani v kazalu
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%naslovnica
+ \thispagestyle{empty}%
+   \begin{center}
+    {\large\sc Univerza v Ljubljani\\
+      Fakulteta za računalništvo in informatiko\\
+     }
+    \vskip 10em%
+    {\autfont \tauthor\par}%
+    {\titfont \ttitle \par}%
+    {\vskip 3em \textsc{DIPLOMSKO DELO\\[5mm]         % dodal Solina za ostale študijske programe
+     UNIVERZITETNI  ŠTUDIJSKI PROGRAM\\ PRVE STOPNJE\\ RAČUNALNIŠTVO IN INFORMATIKA}\par}%
+    \vfill\null%
+% izberite pravi habilitacijski naziv mentorja!
+    {\large \textsc{Mentor}: doc. dr. Luka Šajn\par}%
+    {\vskip 2em \large Ljubljana, \the\year \par}%
+\end{center}
+% prazna stran
+%\clearemptydoublepage      
+% izjava o licencah itd. se izpiše na hrbtni strani naslovnice
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%copyright stran
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\thispagestyle{empty}
+
+\vspace*{5cm}
+{\small \noindent
+To delo je ponujeno pod licenco \textit{Creative Commons Priznanje avtorstva-Deljenje pod enakimi pogoji 2.5 Slovenija} (ali novej\v so razli\v cico).
+To pomeni, da se tako besedilo, slike, grafi in druge sestavine dela kot tudi rezultati diplomskega dela lahko prosto distribuirajo,
+reproducirajo, uporabljajo, priobčujejo javnosti in predelujejo, pod pogojem, da se jasno in vidno navede avtorja in naslov tega
+dela in da se v primeru spremembe, preoblikovanja ali uporabe tega dela v svojem delu, lahko distribuira predelava le pod
+licenco, ki je enaka tej.
+Podrobnosti licence so dostopne na spletni strani \href{http://creativecommons.si}{creativecommons.si} ali na Inštitutu za
+intelektualno lastnino, Streliška 1, 1000 Ljubljana.
+
+\vspace*{1cm}
+\begin{center}% 0.66 / 0.89 = 0.741573033707865
+\CcImageCc{0.741573033707865}\hspace*{1ex}\CcImageBy{1}\hspace*{1ex}\CcImageSa{1}%
+\end{center}
+}
+
+\vspace*{1cm}
+{\small \noindent
+Izvorna koda diplomskega dela, njeni rezultati in v ta namen razvita programska oprema je ponujena pod licenco GNU General Public License,
+različica 3 (ali novejša). To pomeni, da se lahko prosto distribuira in/ali predeluje pod njenimi pogoji.
+Podrobnosti licence so dostopne na spletni strani \url{http://www.gnu.org/licenses/}.
+}
+
+\vfill
+\begin{center} 
+\ \\ \vfill
+{\em
+Besedilo je oblikovano z urejevalnikom besedil \LaTeX.}
+\end{center}
+
+% prazna stran
+\clearemptydoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% stran 3 med uvodnimi listi
+\thispagestyle{empty}
+\
+\vfill
+
+\bigskip
+\noindent\textbf{Kandidat:} Vid Potočnik    \\
+\noindent\textbf{Naslov:} Generiranje slik otrok na podlagi slik staršev - analiza podobnosti sorojencev\\
+\noindent\textbf{Vrsta naloge:} Diplomska naloga na univerzitetnem programu prve stopnje Računalništvo in informatika \\
+\noindent\textbf{Mentor:} doc. dr. Luka Šajn\\
+
+
+\bigskip
+\noindent\textbf{Opis:}\\
+
+
+\bigskip
+\noindent\textbf{Title:} Generation of parent images based on images of their children
+
+\bigskip
+\noindent\textbf{Description:}\\
+
+\vfill
+
+
+
+\vspace{2cm}
+
+% % prazna stran
+% \clearemptydoublepage
+
+% % zahvala
+% \thispagestyle{empty}\mbox{}\vfill\null\it%
+% \noindent
+% Na tem mestu zapišite, komu se zahvaljujete za pomoč pri izdelavi diplomske naloge oziroma pri vašem študiju nasploh. Pazite, da ne boste koga pozabili. Utegnil vam bo zameriti. Temu se da izogniti tako, da celotno zahvalo izpustite.
+% \rm\normalfont
+
+% % prazna stran
+% \clearemptydoublepage
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % posvetilo, če sama zahvala ne zadošča :-)
+% \thispagestyle{empty}\mbox{}{\vskip0.20\textheight}\mbox{}\hfill\begin{minipage}{0.55\textwidth}%
+% Svoji dragi Alenčici.
+% \normalfont\end{minipage}
+
+% % prazna stran
+% \clearemptydoublepage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% kazalo
+\pagestyle{empty}
+\def\thepage{}% preprečimo težave s številkami strani v kazalu
+\tableofcontents{}
+
+
+% prazna stran
+\clearemptydoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% seznam kratic
+
+\chapter*{Seznam uporabljenih kratic}
+
+\noindent\begin{tabular}{p{0.11\textwidth}|p{.39\textwidth}|p{.39\textwidth}}    % po potrebi razširi prvo kolono tabele na račun drugih dveh!
+  {\bf kratica} & {\bf angleško} & {\bf slovensko} \\ \hline
+  {\bf CA}      & classification accuracy & klasifikacijska točnost \\
+  {\bf SVM}   & support vector machine & metoda podpornih vektorjev \\
+  {\bf GAN}   & generative adversarial network & generativno nasprotniško omrežje \\
+  {\bf LR}   & linear regression & linearna regresija  \\
+\end{tabular}
+
+
+% prazna stran
+\clearemptydoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% povzetek
+\addcontentsline{toc}{chapter}{Povzetek}
+\chapter*{Povzetek}
+
+\noindent\textbf{Naslov:} \ttitle
+\bigskip
+
+\noindent\textbf{Avtor:} \tauthor
+\bigskip
+
+%\noindent\textbf{Povzetek:} 
+
+% V vzorcu je predstavljen postopek priprave diplomskega dela z uporabo okolja \LaTeX. Vaš povzetek mora sicer vsebovati približno 100 besed, ta tukaj je odločno prekratek.
+% Dober povzetek vključuje: (1) kratek opis obravnavanega problema, (2) kratek opis vašega pristopa za reševanje tega problema in (3) (najbolj uspešen) rezultat ali prispevek diplomske naloge.
+
+\noindent V tem diplomskem delu bom najprej opisal problem generiranja slik otroških obrazov na podlagi slik staršev in na kratko predstavil že razvite metode ChildGAN, KinshipGAN in DNA-Net. Rezultate, ki jih te metode proizvedejo, bom poskušal primerjati in evaluirati. 
+V drugem delu diplome se bom osredotočil na implementacijo lastne metode za vizualizacijo spremembe spola pri generaciji slik otroških obrazov s pomočjo StyleGAN2 tehnologije.
+
+\bigskip
+
+\noindent\textbf{Ključne besede:} \tkeywords.
+% prazna stran
+\clearemptydoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% abstract
+\selectlanguage{english}
+\addcontentsline{toc}{chapter}{Abstract}
+\chapter*{Abstract}
+
+\noindent\textbf{Title:} \ttitleEn
+\bigskip
+
+\noindent\textbf{Author:} \tauthor
+\bigskip
+
+%\noindent\textbf{Abstract:} 
+\noindent In this thesis, I will first describe the problem of generating images of children's faces based on their parents' images and briefly present the already known methods ChildGAN, KinshipGAN and DNA-Net. I will try to compare and evaluate the results produced by these methods. 
+In the second part of the thesis I will focus on the implementation of my own method for the visualisation of gender change in the generation of images of children's faces using StyleGAN2 technology.
+\bigskip
+
+\noindent\textbf{Keywords:} \tkeywordsEn.
+\selectlanguage{slovene}
+% prazna stran
+\clearemptydoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\mainmatter
+\setcounter{page}{1}
+\pagestyle{fancy}
+
+
+
+\chapter{Uvod}
+
+
+Sinteza človeških slik je kategorija sinteze slik, kjer poskušamo ustvariti verodostojne ali celo fotorealistične upodobitve človeških podob. Računalniško upodobitev človeške podobe je možno izvesti na več različnih načinov in v različnih formatih. V moji diplomski nalogi se bom osredotočil na slikovni format prikaza podobe, natančneje obraza. Obraze bom generiral z algoritmi in metodami umetne inteligence, glavna med njimi bo GAN (angl. Generative Adversarial Network)
+
+Natančneje v diplomski nalogi poskusimo zgraditi najboljši napovedni model, ki bi na podlagi obraza otroka generiral čim boljša približka obrazov mame in očeta. Diplomsko nalogo s podobno tematiko je že naredil Nejc Šuklje, vendar se je on ukvarjal z generiranjem slik otrok na podlagi slik staršev, ravno obratno od moje teme. Oba sva uporabila predhodno nedokončano delo Matjaža Mava, ki je bila dobra podlaga za nadgradnjo in dopolnitev celotne metode. 
+
+
+\section{Motivacija}
+Zakaj ljudje živimo? Kaj je cilj vsakega posameznika v življenju? V kaj vložimo veliko truda tekom življenja? Za veliko ljudi na ta vprašanja je odgovor v reprodukciji oziroma otrocih. Verjetno veliko ljudi, ki ima namen vzgojiti otroka, zanima kakšne fizične atribute bodo podedovali in od katerega starša bodo. 
+
+Prav zaradi tega nakaj dobrih implementacij na tematiko generiranja slik obrazov otrok na podlagi slik staršev že obstaja. Najboljše izmed njih so ChildGAN\cite{cui2021heredity}, KinshipGAN\cite{zkan2018KinshipganSO} in DNA-Net\cite{Gao2021WhatWY}, v prihodnjem poglavju jih bom podrobneje predstavil.
+
+Nisem pa našel, do začetka pisanja diplomske naloge, nobene implementacije generiranja slik obrazov staršev na podlagi slik otrok, kar je bila dobra motivacija za izbiro teme in implementacijo metode.
+
+
+
+\section{Opis problema}
+Človeški možgani lahko s pomočjo analize razlikovalnih vzorcev delov obraza prepoznajo sorodstvene vezi na fotografijah, kar je dokaz, kako izjemno kompleksni so. Natančne in uporabne metode za preverjanje sorodstva s pomočjo računalniške analize \cite{KINNET}, \cite{KinshipCNN}, \cite{FIWverification} obstajajo že nekaj let, saj so modeli na osnovi učenja globokih mrež pokazali impresivne sposobnosti za avtomatsko izvlečenje vzorcev sorodnosti iz obrazov. Te metode prekašajo sposobnosti človeškega zaznavanja pri različnih problemih sorodstvene verifikacije in identifikacije. 
+Verifikacija je problem, predstavljen s 1-1 preslikavo danega obraza proti znani identiteti. (Ali je to ta oseba?). Identifikacija pa je problem, predstavljen s 1-n preslikavo danega obraza proti dani bazi slik obrazov (Kdo je ta oseba?). V evaluaciji lastne metode bomo probali rešiti problem verifikacije. Določenemu otroku bomo poskušali generirati čim bolj skladna starša, njuni identiteti pa bomo nato verificirali s resničnimi slikami staršev tega otroka. Zato bom pri evaluaciji namesto metod za preverjanje sorodstva opisanih zgoraj, uporabljal bolj splošne metode za identifikacijo oziroma verifikacijo obrazov kot so FaceNet \cite{facenet}, ArcFace \cite{arcface}, VGG-Face \cite{Parkhi15}
+
+\section{Struktura naloge}
+Diplomska naloga je sestavljena iz šest poglavij,
+
+Uvod opiše osnoven problem in poda motivacijo za delo. V drugem poglavju so opisane že znane sorodne metode, ki so zgrajene na primerljivi metodologiji. Specifična metodologija lastne in skupne implementacije je opisana v tretjem poglavju. Četrto poglavje predstavi celotno implementacijo metode. Opiše strukturo zbirke slikovnih podatkov, predstavi skupni del, ki ga je pripravil Matjaž Mav in na koncu še lastno implementacijo metode za generiranje slik staršev na podlagi slik otrok. V petem poglavju so rezultati, ki sem jih generiral z metodo evaluirani in vizualizirani. Zadnje, šesto, poglavje pa zaključi celotno diplomsko delo in poda sklepne ugotovitve ter mogoče izboljšave in dopolnitve.
+
+\chapter{Pregled področja}
+
+\section{Znane metode}
+\subsection{KinshipGAN}
+KinshipGAN \cite{zkan2018KinshipganSO} je najstarejša izmed treh metod opisanih tukaj, zato tudi najbolj zastarela. Pričakovano generira slike z slabšo kvaliteto od drugih dveh metod. Metoda slik ne pretvarja v latentni prostor s pomočjo nvidijine StyleGAN tehnologije, vendar uporablja svoj GAN, ki je bil dobra podlaga za začetek raziskovanja o tej tehnologiji. 
+\subsection{ChildGAN}
+Publikacija z originalnim naslovom \textbf{Heredity-aware Child Face Image Generation with Latent Space Disentanglement} \cite{cui2021heredity} predstavi nov način generiranja obraznih struktur imenovan \textbf{ChildGAN}. Temelji na tehnologiji razviti pri podjetju Nvidia imenovani StyleGAN. Osnovna ideja je razplet latentnega prostora že prednaučenega generativnega modela. To omogoči natančno semantično določanje posameznih obraznih atributov in struktur. Razdalje med obraznimi atributi so uporabljene kot psevdo-oznake za določanje najbolj pomembnih atributov (predstavljenih s semantičnimi vektorji). Avtorji s pomočjo genetskih zakonitosti združijo semantične vektorje staršev v združen latentni vektor. Ta metoda naj bi delovala bolje od drugih že znanih, ki so opisane kasneje in velja za state-of-the-art.
+\subsection{DNA-Net}
+Avtorji publikacije z originalnim naslovom \textbf{What will your child look like? dna-net: Age and gender aware kin face synthesizer} \cite{Gao2021WhatWY} v njej predlagajo dvo-stopenjski generativni model, ki na podlagi slik staršev skuša napovedati obraz otroka. Prva stopnja modela je generativni nasprotniški avtomatski kodirnik, pogojen s starostjo in spolom, ki mapira izgled obraza na bolj specifične obrazne atribute. Druga stopnja modela je tako imenovani DNA-Net, ki je uporabljen kot transformacija iz atributov, dobljenih iz obrazov staršev, v atribute obraza otroka, na podlagi genetskih zakonov. Omogočeno je tudi spreminjanje starosti in spola generiranih slik otrok.
+
+
+
+\chapter{Metodologija}
+Metoda temelji na tehnologiji dveh konvolucijskih nevronskih mrež, ki sestavljata generativno nasprotniško mrežo (GAN), bolj specifično nvidijin StyleGAN2. S katero lahko posamezno sliko obraza predstavimo v latentnem prostoru, povedano enostavneje, z vektorjem nižjih dimenzij od prvotne slike. Predstavitev slike v latentnem prostoru ohrani večino informacije o njej, zato lahko z obratnim procesom sliko generiramo iz predstavitve v latentnem prostoru. Latentni prostor omogoča veliko hitrejše in bolj efektivno računanje, zato lahko napovedni model zgradimo na več podatkih oziroma slikah. 
+
+
+\section{Generativne nasprotniške mreže}
+StyleGAN je v sami osnovi generativna nasprotniška mreža (ang. General Adversarial Network - GAN) \cite{goodfellow2014generative}. Klasicna arhitektura GAN je sestavljena iz dveh nasprotujičih konvolucijskih nevronskih mrez (ang. Convolutional Neural Network - CNN) \cite{} generatorja in diskriminatorja. Generator poskuša generirati umetne primere (največkrat so to slike) čim bolj podobne resničnim primerom, diskriminator pa poskuša ločiti resnične od umetno generiranih primerov. S takšnim tekmovanjem skozi učenje na veliko učnih ciklih in primerih se oba izboljšujeta. dokler ni generator zmožen generirati tako dobrih primerov, da jih skoraj ni mogoče več ločiti od resničnih.
+
+\begin{equation}
+\min_{G}\max_{D} \mathcal{V}(G, D) = \mathbb{E}{\boldsymbol{x} \sim p_{data}(\boldsymbol{x})} [\log D(\boldsymbol{x})] + \mathbb{E}{\boldsymbol{z} \sim p{z}(\boldsymbol{z})} [\log (1 - D(G(\boldsymbol{z})))],
+\end{equation}
+
+Enačba 3.1 prestavlja izgubo nasprotniških strani (ang. adversarial loss). Cilj je minimizacija razlik med distribucijama resničnih in umetnih podatkov. Generator poskuša izgubo minimizirati, diskriminator pa maksimizirati. 
+Generator na vhod dobi šum z in generira umetno sliko G(z). Diskriminator nato dobi na vhod realno sliko x in umetno generirano sliko G(z). Med učenjem pokuša diskriminator čim bolj ločiti med realnimi x in umetnimi G(z) primeri tako, da za umetni primer vrne verjetnost, ki je blizu 0, za realni primer pa verjetnost bližje 1. V idealnem primeru za diskriminator bi bila vrednost funkcije 1. Ravno obratno počne generator, ki poskuša minimizirati vrednost funkcije, in s tem čim bolje naučiti porazdelitev slik v učni množici, tako pa prevarati diskriminator.
+
+
+\section{StyleGAN}
+Od klasičnega GANa, se StyleGAN razlikuje samo v generatorju. Karras et al. so v članku \textbf{A Style-Based Generator Architecture for Generative Adversarial Networks} \cite{karras2019style} predstavili arhitekturo spremenjenega generatorja, ki temelji na podobnem principu generatorja predstavljenega zgoraj, vendar s spremenjeno in dopolnjeno arhitekturo. Običajni konvolucijski nevronski mreži generatorja, je bil dodan koncept iz že znane tehnologije prenosa stila med fotografijami \textbf{AdaIN} predstavljeni v \textbf{Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization} \cite{huang2017adain}. 
+
+
+\subsection{AdaIN}
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{images/adain_example.png}
+\end{center}
+  \caption{Primeri AdaIN slogovnega prenosa na slike. Vsaka vrstica si deli enak stil, vsak stolpec pa enako sliko vsebine}
+  \label{AdaIN}
+\end{figure}
+
+
+AdaIN (ang. Adaptive Instance Normalization) \cite{huang2017adain} je normalizacijska tehnika, uporabljena za prenos poljubnega sloga med slikami v realnem času. Algoritem sestavlja kodirnik, ki sliko s vsebino in sliko sloga preslika v latentni prostor značilk in vrne značilki x in y. Sliki predstavljeni v latentnem prostoru sta nato poslani v sloj AdaIN, kateri v vsakem kanalu slik uravna srednjo vrednost $\mu$ in standardni odklon $\sigma$ značilk x slike s vsebino s srednjo vrednostjo in standardnim odklonom značilk y slike s slogom. Na koncu naučeno dekodirno omrežje generira novo slogovno spremenjeno sliko z invertiranjem izhoda AdaIN nazaj v prostor originalne slike s vsebino. 
+
+\begin{equation}
+\text{AdaIN}(x,y) = \sigma(y) \frac{x - \mu(x)}{\sigma(x)} + \mu(y),
+\end{equation}
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{images/adain_architecture.png}
+\end{center}
+  \caption{Arhitektura AdaIN}
+  \label{AdaIN}
+\end{figure}
+
+
+\subsection{Arhitektura generatorja}
+AdaIN je osnovna oziroma glavna sprememba dodana v novo arhitekturo StyleGAN generatorja. 
+V arhitekturi StyleGAN generatorja sta na vsakem nivoju vsebovana po dva AdaIN sloja. Arhitektura generatorja pa je okoli teh slojev primerno prilagojena, kar bom opisal v tem poglavju.
+
+Klasičen GAN generator je večplastni perceptron (ang. multilayer perceptron) oziroma nevronska mreža, pri generiranju slik je to konvolucijska nevronska mreža \cite{karras2017progressive}. Generator na vhod prejme naključni šum (ang. random noise), njegov izhod pa je generirana slika, ki je naprej podana diskriminatorju. Podobno velja za StyleGAN generator, le z določenimi dodatki in spremembami. Spremembe bom opisal v podpoglavjih Vhodni sloj, Mapirno omrežje in dodajanje sloga (ang. mapping network) ter Dodajanje šuma sinteznemu omrežju.
+
+Generiranje slik poteka v sinteznem omrežju g, ki ga sestavlja 18 konvolucijskih slojev, ki so v 9 resolucijskih nivojih - po dve konvoluciji na enem resolucijskem nivoju. Generator omogoča povečanje dimenzije vhodne konstante iz 4x4 na 1024x1024, kar na koncu predstavlja generirano sliko. K sinteznemu omrežju so bile v okviru StyleGAN-a dodane izboljšave, ki predstavljajo nekakšno podporno infrastrukturo generatorju. 
+
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{images/stylegan_architecture.png}
+\end{center}
+  \caption{Arhitektura StyleGAN generatorja}
+  \label{AdaIN}
+\end{figure}
+
+
+
+\subsubsection{Vhodni sloj}
+StyleGAN generator se od klasičnega razlikuje že pri vhodnih podatkih. Prvi sloj pri klasičnem generatorju je tako imenovani vhodni sloj (ang. input layer), ki naključni šum na vhodu pretvori v uporabno obliko za nadalnje sloje nevronske mreže. StyleGAN pa izpusti celoten naključen vhodni sloj, namesto tega pa je vhod v NN naučena konstanta določene dimenzije 4x4x512. Konstanta na vhodnem sloju pomeni, da dejanski vhodni podatki v model pridejo le preko slogov, dodanih v AdaIN operator na vsakem sloju NN, ki so odvisni od mapirnega omrežja f.
+
+\subsubsection{Mapirno omrežje in dodajanje sloga}
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{images/stylegan_mapping.png}
+\end{center}
+  \caption{Mapirno omrežje f, ki mapira latentno kodo iz prostora Z v prostor W. W+ je razširjen prostor W. A je afina transformacija, specializirana za vsak konvolucijski sloj sinteznega omrežja g}
+  \label{AdaIN}
+\end{figure}
+
+Mapirno omrežje je arhitekturno in vsebinsko po pomembnosti največja sprememba od začetnega Progressive GAN-a \cite{karras2017progressive}. V osnovi je to 8-plastni perceptron (ang. multilayer perceptron - MLP), drugače povedano nevronska mreža iz osmih popolno povezanih slojev. Na vhod dobi latentno kodo z dimenzije 512, ki pripada latentnemu prostoru Z. Naloga omrežja je mapiranje z v latentni prostor W. Izhod omrežja je latentna koda w enakih dimezij kot z - 512. Prednaučena afina transformacija A nato, za vsak izmed 18 slojev konvolucije posebej, specializira w v stile y, ki kontrolirajo AdaIN operacije po vsakem konvolucijskem slogu sinteznega omrežja g. AdaIN normalizacija deluje enako kot je bila opisana v poglavju 3.2.1, z razliko v vhodnem slogu. Vhodni slog v tem primeru ni slika sloga, vendar je to izračunan slog y na podlagi vektorja w. AdaIN operacija je torej definirana kot
+
+\begin{equation}
+\text{AdaIN}(x_{i},y) = y_{s,i} \frac{x_{i} - \mu(x_{i})}{\sigma(x_{i})} + y_{b,i},
+\end{equation}
+
+kjer je vsak feature map $x_{i}$ obravnavan posebej. Torej srednja vrednost in standardni odklon $x_{i}$ sta uravnana s srednjo vrednostjo in standardnim odklonom pripadajoče komponente sloga y.
+
+
+\subsubsection{Dodajanje šuma sinteznemu omrežju}
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=0.5\textwidth]{images/stylegan_noise.png}
+\end{center}
+  \caption{(a) Šum dodan na vseh slojih. (b) Brez dodanega šuma. (c) Šum dodan v slojih podrobnosti (fine layers) ($64^2 - 1024^2$). (d) Šum dodan v slojih (coarse layers)  ($4^2 - 32^2$)}
+  \label{AdaIN}
+\end{figure}
+
+Najbolj vidni aspekti stohastičnih podrobnosti v človeških portretih bi na primer bili točna postavitev las, lokacija kožnih por in peg, postavitev gub na obrazu in podobno. Za naposredno dodajanje stohastičnih podrobnosti se v model dodaja šum (ang. noise). Šum je eno kanalna slika nepovezanega Gaussovega šuma. Dodana je po vsakem konvolucijskem sloju sinteznega omrežja g. Katerkoli od aspektov podrobnosti je z dodajanjem šuma randomiziran brez, da to vpliva na celotno podobo obraza in identiteto človeka.
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=1\textwidth]{images/stylegan_artefacts.png}
+\end{center}
+  \caption{Normalizacija v operaciji AdaIN StyleGAN generatorja povzroča artefakte v obliki vodnih kapelj. Niso vedno vidni na generiranih slikah, vendar jih je mogoče opaziti na aktivacijah znotraj omrežja generatorja. Problem je sistemski, saj so artefakti prisotni na vseh slikah. StyleGAN2 predlaga spremembe, ki to odpravijo. }
+  \label{Artefakti}
+\end{figure}
+
+
+
+\subsection{StyleGAN2}
+
+Kreatorji StyleGAN arhitektue so 2020 to posodobili in izdali članek \textbf{Analyzing and Improving the Image Quality of StyleGAN} \cite{Karras2019stylegan2}. V članku analizirajo več njegovih značilnih artefaktov in predlagajo spremembe v arhitekturi modela in metodah učenja modela, da bi jih odpravili. Večje spremembe so na novo oblikovana normalizacija generatorja (operacija AdaIN), ponovno preučijo postopno rast (ang. progressive growing) in regulirajo generator, in s tem spodbudijo dobro pogojenost pri preslikavi latentnih kod v slike. 
+
+Poleg izboljšanja kakovosti slik, regulator dolžine poti (ang. Path length regularization) prinaša dodatno korist, saj je generator dosti lažje invertirati. To omogoča zanesljivo pripisovanje latentne kode poljubni sliki. Povedano drugače, iz poljubne slike lahko pridobimo latentno kodo, ki v latentnem prostoru predstavlja dober približek originalni sliki, če bi iz te latentne kode spet generirali originalno sliko. 
+
+
+
+\subsubsection{Spremembe v arhitekturi generatorja}
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=1\textwidth]{images/stylegan2_generator.png}
+\end{center}
+  \caption{(a) Originalni generator StyleGAN (b) Originalni generator StyleGNA, podrobneje (c) Diagram novega StyleGAN2 generatorja (d) Operacija demodulacije}
+  \label{Spremembe v arhitekturi StyleGAN2 generatorja}
+\end{figure}
+
+(a) Originalni generator StyleGAN, kjer A označuje naučeno
+afino transformacijo iz W, ki ustvari slog, B pa je operacija oddajanja šuma 
+
+(b) Isti diagram StyleGAN kot pri (a), le da prikazuje več podrobnosti. AdaIN operacija je razbita na normalizacijo in sledečo modulacijo, obe delujoči na povprečju in standardnem odklonu za vsak feature map posebej. Anotirani so tudi naučene uteži (w), pristranskosti b in konstantni vhod c ter na novo narisana siva polja, tako da je aktiven po en slog v vsakem polju. Aktivacijska funkcija (puščajoča ReLU) se vedno uporabi takoj po dodajanju pristranskosti. 
+
+(c) Diagram novega StyleGAN2 generatorja. Odstranjene so nekatere odvečne operacije na začetku, seštevanje b (pristranskosti) in B (dodajanje šuma) sta premaknjena izven aktivnega območja sloga, kjer delujeta na normaliziranih podatkih, kar se izkaže za bolj predvidljivo (njun vpliv ni več inverzno odvisen od magnitude dodanega sloga). Pri spremenjeni arhitekturi se izkaže, da je zadostno, da modulacija in normalizacija delujeta le nad standardnim odklonom za vsak feature map - povrpečje je redundantno.
+
+(d) Spremenjena arhitektura omogoča zamenjavo normalizacije primerov z operacijo "demodulacije", ki jo uporabimo nad utežimi w, povezane z vsako konvolucijsko plastjo. Demodulacija je operacija, ki je uporabljena namesto normalizacije primerov (AdaIN normalizacija). Deluje bolj direktno, na podlagi statistične analize o signalu, namesto dejanskih podatkih o feature mapih, vendar je zato tudi bolj šibka.
+
+
+\subsubsection{Projekcija slike v latentni prostor}
+Za manipulacijo poljubne slike v prostoru latentnih značilnosti je treba najprej poiskati ujemajočo latentno kodo w zanjo. Predlagatelji StyleGAN arhitekture, tega niso implementirali, bilo pa je implementirano kasneje in predstavljeno v člankih \textbf{Image2StyleGAN: How to Embed Images Into the StyleGAN Latent Space?} \cite{Image2StyleGAN2019} in \textbf{Style Generator Inversion for Image Enhancement and Animation} \cite{gabbay2019style}. Te implementacije poskušajo najti posamezno optimalno latentno kodo w za vsak sloj konvolucije, kar izboljša podobnost originalni sliki. Problem takšne implementacije pa je, da omogoča preslikavo poljubne slike, ki ne bi smela imeti reprezentacije v latentnem prostoru. 
+
+Za nas je projekcija slike v latentni prostor najpomembnejša sprememba oziroma dodatek, ki ga predlaga StyleGAN2 arhitektura. Pridobitev latentne kode iz poljubne slike omogoča veliko lažje operacije nad slikami. Čeprav ta preslikava ni popolna, je dovolj dobra za našo uporabo.
+
+Predlagatelji StyleGAN2 arhitekture torej implementirajo projekcijo slike v latentni prostor na tak način, da poiščejo eno latentno kodo v prvotnem, nerazširjenem latentnem prostoru, saj te ustrezajo slikam, ki bi jih lahko ustvaril generator.
+
+Njihov implementacija se od prejšnjih razlikuje v dveh osnovnih stvareh. Prva, med optimizacijo latentni kodi dodajo zmanjšan šum, da bi čim bolj celotno preiskali latentni prostor. Druga, optimizirajo vhode stohastičnega šuma pri StyleGAN2 generatorju - jih regularizirajo, da ne prenašajo koherentnega signala ozitoma šuma. Regularizacija temelji na posodabljanju avtokorelacijskih koeficientov šuma, ki se morajo ujemati z temi Gaussovega šuma na več lestvicah.
+
+
+
+
+
+\section{Napovedni modeli}
+
+Cilj diplomske naloge je iz slik obrazov otrok generirati slike obrazov staršev tako, da bodo po objektivno določenih metrikah čim bolj podobni njihovim pravim staršem. V sami osnovi gre za problem napovedovanja rezultatov na podlagi pridobljenih podatkov s pomočjo prednaučenih napovednih modelov.
+
+V prvem koraku smo uporabili StyleGAN2 projektor za pridobitev latentnih kod vseh slik, na katerih bomo izvajali učenje ter kasneje predikcijo. Slikam smo tako zmanjšali dimenzijo, tako lahko veliko lažje izvajamo računske operacije in s tem učenje napovednih modelov. Dimenzija prvotnih slik je bila 1024x1024x3, dimenzija latentne kode določene slike pa je 18x512, kar je približno 34.000-kratno zmanjšanje.
+
+\subsection{Linearna regresija}
+
+Linearna regresija je statistična metoda, ki se uporablja za modeliranje odvisnosti med odvisno spremenljivko in eno ali več neodvisnimi spremenljivkami. Cilj linearne regresije je najti linearno razmerje med spremenljivkami, ki se lahko uporablja za napovedovanje odvisne spremenljivke na podlagi vrednosti neodvisnih spremenljivk.
+
+
+
+Model linearne regresije (ang. Linear Regression Model), podan z enačbo (3.4), opredeljuje odvisnost med odvisno spremenljivko $y$ in neodvisnimi spremenljivkami $x_1, x_2, ..., x_p$. Model predpostavlja, da obstaja linearno razmerje med spremenljivkami in da je vsako odstopanje od linearne zveze posledica naključne napake $\epsilon_i$. Model vključuje $p+1$ neznanih parametrov $\beta_0, \beta_1, ..., \beta_p$, ki predstavljajo odmik in naklone regresijske premice.
+
+\begin{equation}
+y_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p x_{ip} + \epsilon_i
+\end{equation}
+
+
+Ocenjevanje z najmanjšimi kvadrati (ang. Least Squares Estimation), podano z enačbo (3.5), se uporablja za ocenjevanje vrednosti neznanih parametrov, ki minimizirajo vsoto kvadratov napak med opazovanimi vrednostmi odvisne spremenljivke in napovedanimi vrednostmi na podlagi neodvisnih spremenljivk. To se izvede z iskanjem vrednosti $\beta_0, \beta_1, ..., \beta_p$, ki minimizirajo vsoto kvadratov ostankov $\sum_{i=1}^{n} (y_i - \hat{y_i})^2$.
+
+\begin{equation}
+\hat{\beta} = \operatorname*{argmin}{\beta} \sum{i=1}^{n} \left(y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2} - \cdots - \beta_p x_{ip}\right)^2
+\end{equation}
+
+Ocenjena regresijska funkcija (ang. Estimated Regression Function), podana z enačbo (3.6), predstavlja napovedane vrednosti odvisne spremenljivke na podlagi ocenjenih vrednosti parametrov $\hat{\beta}_0, \hat{\beta}_1, ..., \hat{\beta}_p$ in vrednosti neodvisnih spremenljivk $x_1, x_2, ..., x_p$. Ostanki (ang. Residuals), podani z enačbo (3.7), predstavljajo razlike med opazovanimi vrednostmi odvisne spremenljivke in napovedanimi vrednostmi na podlagi ocenjene regresijske funkcije.
+
+\begin{equation}
+\hat{y} = \hat{\beta}_0 + \hat{\beta}_1 x_1 + \hat{\beta}_2 x_2 + \cdots + \hat{\beta}_p x_p
+\end{equation}
+
+\begin{equation}
+e_i = y_i - \hat{y}_i
+\end{equation}
+
+Vsota kvadratov ostankov (ang. Sum of squared residuals), podana z enačbo (3.8), predstavlja celotno količino napake v regresijskem modelu. Celotna vsota kvadratov (ang. Total Sum of Squares), podana z enačbo (3.9), predstavlja skupno variacijo odvisne spremenljivke okoli njenega povprečja. Koeficient determinacije (ang. Coefficient of Determination) ali $R^2$ , podan z enačbo (3.10), predstavlja delež variacije odvisne spremenljivke, ki ga razloži regresijski model. Vrednost $R^2$, ki je blizu 1, kaže na dobro prileganje med modelom in podatki.
+
+
+\begin{equation}
+SSE = \sum_{i=1}^{n} e_i^2
+\end{equation}
+
+\begin{equation}
+SST = \sum_{i=1}^{n} \left(y_i - \bar{y}\right)^2
+\end{equation}
+
+\begin{equation}
+R^2 = \frac{SST - SSE}{SST} = 1 - \frac{SSE}{SST}
+\end{equation}
+
+
+Standardna napaka ocene (ang. Standard Error of the Estimate), podana z enačbo (3.11), je mera povprečne razdalje med opazovanimi vrednostmi odvisne spremenljivke in napovedanimi vrednostmi na podlagi regresijskega modela. Interval zaupanja (ang. Confidence Interval) za $\beta_j$ , podan z enačbo (3.12), predstavlja območje vrednosti, v katerem je verjetno, da bo prava vrednost $\beta_j$, s določeno stopnjo zaupanja.
+
+\begin{equation}
+s = \sqrt{\frac{SSE}{n - p - 1}}
+\end{equation}
+
+\begin{equation}
+\hat{\beta}j \pm t{\alpha/2,n-p-1} \frac{s}{\sqrt{\sum_{i=1}^{n} \left(x_{ij} - \bar{x}_j\right)^2}}
+\end{equation}
+
+kjer je $t_{\alpha/2,n-p-1}$ percentil $1-\alpha/2$ porazdelitve $t$ z $n-p-1$ stopnjami prostosti.
+
+
+Na splošno funkcije, ki opisujejo linearne regresije, delujejo skupaj za oceno parametrov linearnega odnosa med odvisno spremenljivko in eno ali več neodvisnimi spremenljivkami ter ocenjevanje prileganja regresijskega modela podatkom. Model se lahko uporablja za napovedovanje vrednosti odvisne spremenljivke na podlagi vrednosti neodvisnih spremenljivk, ocenjene parametre pa je mogoče interpretirati za razumevanje narave odnosa med spremenljivkami. 
+
+
+\subsubsection{Matrična oblika}
+Vse enačbe, ki opisujejo linearno regresijo, v matrični obliki. Ta je bolj relevantna za nadaljevanje, saj se bolj enostavno odraža v kodi.
+
+The hypothesis function:
+
+$h_{\boldsymbol{\beta}}(\mathbf{X}) = \mathbf{X}\boldsymbol{\beta}$
+
+The loss function:
+
+$J(\boldsymbol{\beta}) = \frac{1}{2n} (\mathbf{X}\boldsymbol{\beta} - \mathbf{y})^T(\mathbf{X}\boldsymbol{\beta} - \mathbf{y})$
+
+The gradient of the loss function:
+
+$\nabla_{\boldsymbol{\beta}} J(\boldsymbol{\beta}) = \frac{1}{n} \mathbf{X}^T(\mathbf{X}\boldsymbol{\beta} - \mathbf{y})$
+
+The normal equation:
+
+$\boldsymbol{\beta} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$
+
+The prediction:
+
+$\hat{\mathbf{y}} = \mathbf{X}\boldsymbol{\beta}$
+
+The sum of squared residuals:
+
+$SS_{res} = (\mathbf{y} - \hat{\mathbf{y}})^T(\mathbf{y} - \hat{\mathbf{y}})$
+
+The total sum of squares:
+
+$SS_{tot} = (\mathbf{y} - \bar{\mathbf{y}})^T(\mathbf{y} - \bar{\mathbf{y}})$
+
+The coefficient of determination:
+
+$R^2 = 1 - \frac{SS_{res}}{SS_{tot}}$
+
+The standard error of the estimate:
+
+$SE(\boldsymbol{\epsilon}) = \sqrt{\frac{1}{n-p-1} SS_{res}}$
+
+The confidence interval for $\beta_j$:
+
+$CI(\beta_j) = \beta_j \pm t_{\alpha/2,n-p-1}SE(\hat{\beta_j})$
+
+where $t_{\alpha/2,n-p-1}$ is the $1 - \alpha/2$ percentile of the $t$-distribution with $n-p-1$ degrees of freedom.
+
+
+
+\subsection{Ridge normalizacija}
+
+Ridge normalizacija, znana tudi kot L2 regularizacija, je tehnika, ki se uporablja za preprečevanje preprileganja v modelih linearne regresije s dodajanjem kazenskega člena v funkcijo izgube. Ta kazenski člen je sorazmeren s kvadratom magnitude koeficientov linearne regresijskega modela. S tem kazenskim členom je model spodbujen k manjšim vrednostim koeficientov, kar zmanjša kompleksnost modela in preprečuje preprileganje.
+
+Matematično se funkcija izgube Ridge regresije lahko zapiše kot:
+
+\begin{equation*}
+L(\mathbf{y}, \mathbf{X}, \boldsymbol{\beta}) = (\mathbf{y} - \mathbf{X} \boldsymbol{\beta})^T (\mathbf{y} - \mathbf{X} \boldsymbol{\beta}) + \lambda \boldsymbol{\beta}^T \boldsymbol{\beta}
+\end{equation*}
+
+kjer je $\mathbf{y}$ vektor vrednosti ciljne spremenljivke, $\mathbf{X}$ matrika vrednosti napovednih spremenljivk, $\boldsymbol{\beta}$ vektor koeficientov, ki jih je treba oceniti, $n$ število opazovanj, $\lambda$ pa je hiperparameter, ki nadzoruje jakost kazenskega člena.
+
+Prvi člen v funkciji izgube predstavlja povprečno kvadratno napako med predvidenimi vrednostmi in dejanskimi ciljnimi vrednostmi, drugi člen pa je L2 kazenski člen, ki krči ocene koeficientov proti nič. Hiperparameter $\lambda$ nadzira ravnovesje med tema dvema členoma in večje vrednosti $\lambda$ vodijo v manjše ocene koeficientov.
+
+Ocene koeficientov Ridge regresije se lahko pridobijo s pomočjo naslednje enačbe:
+
+\begin{equation*}
+\boldsymbol{\beta} = (\mathbf{X}^T \mathbf{X} + \lambda \mathbf{I})^{-1} \mathbf{X}^T \mathbf{y}
+\end{equation*}
+
+
+kjer je $\mathbf{I}$ identitetna matrika. Ta enačba je podobna enačbi za običajni najmanjši kvadrat, vendar s dodatkom člena $\lambda$.
+
+Ridge regresija na splošno dodaja regularizacijski člen v model linearne regresije, kar pomaga zmanjšati preprileganje in izboljšati splošno učinkovitost modela.
+
+
+
+
+
+\subsubsection{Izbira značilk za linearno regresijo}
+V našem primeru je neodvisna spremenljivka latentna koda, pridobljeno iz določenega obraza otroka. Model pa napove odvisno spremenljivko, katere polovica predstavlja latentno kodo obraza mame, polovica pa latentno kodo obraza očeta. Značilke lahko sestavimo na več različnih načinov, najboljšega pa lahko določimo s poskušanjem. Dve možnosti, ki nam takoj prideta na misel sta zaporedno sestavljena značilka iz latentnih kod mame in očeta in izmenično sestavljena značilka iz latentnih kod mame in očeta. To je kasneje bolj podrobno opisano v poglavju \textbf{4.4 Lastna implementacija}
+
+
+
+\chapter{Implementacija lastne metode}
+\section{Struktura projekta}
+Projekt je narejen v okviru sistema za upravljanje paketov Conda \cite{conda}, tako je lahko pognan s pomočjo Conde na katerem koli računalniku neodvisno od že nameščenih Python knjižnic. Conda omogoča enostavno vzpostavitev Python virtualnega okolja, znotraj katerega na začetku namestimo vse potrebne knjižnice, kodo pa potem poganjamo na Python prevajalniku iz Conda virtualnega okolja.
+
+Pri razvoju smo uporabljali sistem za nadzor različic (ang. Version control system) GitHub \cite{github}, ki je predvsem omogočil enostavnejšo integracijo dveh zunanjih modulov StyleGAN2 (v repozitoriju NVlabs/stylegan2-ada-pytorch) \cite{stylegan2adapytorch} in InterfaceGAN (v repozitoriju genforce/interfacegan) \cite{interfacegan} v projekt. S pomočjo GitHubovih submoddulov smo v projekt vključili obe zbirki podatkon NOKDB in PPLDB, za katera smo ustvarili ločena repozitorija za bolj efektivno razmnoževanje projekta v prihodnosti.
+
+\subsection{Organizacija kode}
+\subsection{Struktura nabora slikovnih podatkov}
+\subsubsection{NOKDB}
+\subsubsection{PPLDB}
+
+\section{Opis uporabljenih tehnologij in metod}
+\subsection{StyleGAN}
+\subsection{Interfacegan}
+\subsection{Wandb}
+
+\section{Skupna implementacija}
+
+\section{Lastna implementacija}
+\subsection{Generacija prvotnih slik staršev}
+\subsection{Izboljšava slik staršev}
+
+
+
+\chapter{Evaluacija rezultatov}
+\section{Deepface knjižnica za razpoznavo obrazov}
+\section{Evaluacija}
+\section{Vizualizacija}
+
+
+
+\chapter{Sklepne ugotovitve}
+\section{Zaključek}
+\section{Primerjava znanih metod z lastno implementacijo}
+\section{Možne izboljšave in dopolnitve}
+
+
+
+
+
+
+\printbibliography[heading=bibintoc,title={Literatura}]
+
+
+\end{document}
+
