@@ -42,7 +42,7 @@ def main(output_dir='default'):
     y_validation_hat = regressor.predict(X_validation)
     y_test_hat = regressor.predict(X_test)
 
-    mse_train = mean_squared_error(y_train, y_train_hat)
+    mse_train = mean_squared_error(y_train, y_train_hat) 
     mse_validation = mean_squared_error(y_validation, y_validation_hat)
     mse_test = mean_squared_error(y_test, y_test_hat)
     print(mse_train, mse_validation, mse_test)
