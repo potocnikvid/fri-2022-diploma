@@ -20,12 +20,15 @@ class NokMeanDataset(Dataset):
             download: bool = False,
             split: str = "train", #| "validation" | "test",
             normalize: bool = False,
+            people: list = [],
+            people_type: str = 'c' #| 'm' | 'f'
         ) -> None:
 
         self.root = root
         self.split = split
         self.download = download
-
+        self.people = people
+        self.people_type = people_type
 
         if not os.path.exists(self.root):
             self._download(False)
@@ -38,12 +41,15 @@ class NokMeanDataset(Dataset):
         del self.samples_df["c_iid"]
         self.samples_df = self.samples_df.drop_duplicates()
         self.persons_df = pd.read_csv(f"{root}/nokdb-persons.csv")
-        
+
         self.normalize = None
         if normalize:
             npz = np.load(f"{root}/norm/nokdb-normalization.npz")
             self.normalize = torchvision.transforms.Normalize(torch.from_numpy(npz["mean"]), torch.from_numpy(npz["std"]))
 
+        if len(people):
+            self.samples_df = self.samples_df[self.samples_df['{}_pid'.format(people_type)].isin(people)]
+    
         pids_all = pd.concat([self.samples_df["f_pid"], self.samples_df["m_pid"], self.samples_df["c_pid"]], ignore_index=True).unique()
         pids_p2c = pd.concat([self.samples_df["f_pid"], self.samples_df["m_pid"]], ignore_index=True).unique()
         pids_c2p = self.samples_df["c_pid"].unique()
@@ -60,7 +66,7 @@ class NokMeanDataset(Dataset):
                 None,
                 None,
                 self._get_latent_vector(ids["c_pid"], self.normalize),
-                self._get_gender(ids["c_pid"]),
+                None,#self._get_gender(ids["c_pid"]),
                 None,
                 None,
                 ids["c_pid"]

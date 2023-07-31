@@ -26,7 +26,7 @@ class BaseEvaluator():
         
         
     def cos_sim(self, a, b):
-        return np.dot(a, b)/(np.linalg.norm(a)*np.linalg.norm(b))
+        return round(np.dot(a, b)/(np.linalg.norm(a)*np.linalg.norm(b)), 3)
 
     def compare_embeddings(self, first_e, second_e):
         return self.cos_sim(first_e, second_e)
@@ -58,7 +58,6 @@ class BaseEvaluator():
 
     def evaluate_batch(self, images, images_hat, model_name):
         model = DeepFace.build_model(model_name)
-        print(model)
         image_embeddings = self.get_embeddings(images, model, model_name)
         image_hat_embeddings = self.get_embeddings(images_hat, model, model_name)
         res = []

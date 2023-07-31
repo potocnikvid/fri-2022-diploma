@@ -15,7 +15,7 @@ class StyleGAN2():
         self.verbose = verbose
 
         self.root = os.getenv('ROOT')
-        self.root_path = f"./src/submodules/stylegan2-ada-pytorch"
+        self.root_path = f"./submodules/stylegan2-ada-pytorch"
         self.tmp_path = tmp_path
         self.image_tag = "stylegan2-ada-pytorch:latest"
 
@@ -40,10 +40,7 @@ class StyleGAN2():
                 continue
             self._project_from_command([f"--target={img}", f"--outdir={outdir}", "--save-video=False"])
             result.append(np.load(f"{outdir}/projected_w.npz")["w"])
-        return result
-
-    def generate_from_seed(self, seed):
-        return self._generate_from_command([f"--seeds={seed}"])
+        return result 
 
     def generate_from_array(self, array):
         assert array.shape[1:] == (18, 512)

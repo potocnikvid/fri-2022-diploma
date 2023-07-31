@@ -17,6 +17,9 @@
 
 \usepackage{color}
 \usepackage{soul}
+\usepackage{tabularx}
+\usepackage{listings}
+
 
 \usepackage[
 backend=biber,
@@ -302,7 +305,7 @@ Besedilo je oblikovano z urejevalnikom besedil \LaTeX.}
   {\bf kratica} & {\bf angleško} & {\bf slovensko} \\ \hline
   {\bf CA}      & classification accuracy & klasifikacijska točnost \\
   {\bf SVM}   & support vector machine & metoda podpornih vektorjev \\
-  {\bf GAN}   & generative adversarial network & generativno nasprotniško omrežje \\
+  {\bf GAN}   & generative adversarial network & generativno nasprotniška mreža \\
   {\bf LR}   & linear regression & linearna regresija  \\
 \end{tabular}
 
@@ -326,8 +329,8 @@ Besedilo je oblikovano z urejevalnikom besedil \LaTeX.}
 % V vzorcu je predstavljen postopek priprave diplomskega dela z uporabo okolja \LaTeX. Vaš povzetek mora sicer vsebovati približno 100 besed, ta tukaj je odločno prekratek.
 % Dober povzetek vključuje: (1) kratek opis obravnavanega problema, (2) kratek opis vašega pristopa za reševanje tega problema in (3) (najbolj uspešen) rezultat ali prispevek diplomske naloge.
 
-\noindent V tem diplomskem delu bom najprej opisal problem generiranja slik otroških obrazov na podlagi slik staršev in na kratko predstavil že razvite metode ChildGAN, KinshipGAN in DNA-Net. Rezultate, ki jih te metode proizvedejo, bom poskušal primerjati in evaluirati. 
-V drugem delu diplome se bom osredotočil na implementacijo lastne metode za vizualizacijo spremembe spola pri generaciji slik otroških obrazov s pomočjo StyleGAN2 tehnologije.
+\noindent V tem diplomskem delu bom najprej opisal problem generiranja slik otroških obrazov na podlagi slik staršev in na kratko predstavil že razvite metode ChildGAN, KinshipGAN in DNA-Net. Rezultate, ki jih te metode generirajo, bom poskušal primerjati in ovrednotiti. 
+V drugem delu diplome se bom osredotočil na implementacijo lastne metode za vizualizacijo spremembe spola pri generiranju slik otroških obrazov s pomočjo StyleGAN2 tehnologije.
 
 \bigskip
 
@@ -348,9 +351,7 @@ V drugem delu diplome se bom osredotočil na implementacijo lastne metode za viz
 \bigskip
 
 %\noindent\textbf{Abstract:} 
-\noindent In this thesis, I will first describe the problem of generating images of children's faces based on their parents' images and briefly present the already known methods ChildGAN, KinshipGAN and DNA-Net. I will try to compare and evaluate the results produced by these methods. 
-In the second part of the thesis I will focus on the implementation of my own method for the visualisation of gender change in the generation of images of children's faces using StyleGAN2 technology.
-\bigskip
+\noindent In this thesis, I will first describe the problem of generating images of children's faces from their parents' images and briefly introduce the already known methods ChildGAN, KinshipGAN and DNA-Net. I will try to compare and evaluate the results of these methods. In the second part of the thesis, I will focus on the implementation of my own method for visualising gender changes when generating images of children's faces using StyleGAN2 technology.\bigskip
 
 \noindent\textbf{Keywords:} \tkeywordsEn.
 \selectlanguage{slovene}
@@ -367,13 +368,13 @@ In the second part of the thesis I will focus on the implementation of my own me
 \chapter{Uvod}
 
 
-Sinteza človeških slik je kategorija sinteze slik, kjer poskušamo ustvariti verodostojne ali celo fotorealistične upodobitve človeških podob. Računalniško upodobitev človeške podobe je možno izvesti na več različnih načinov in v različnih formatih. V moji diplomski nalogi se bom osredotočil na slikovni format prikaza podobe, natančneje obraza. Obraze bom generiral z algoritmi in metodami umetne inteligence, glavna med njimi bo GAN (angl. Generative Adversarial Network)
+Sinteza človeških slik je kategorija sinteze slik, kjer poskušamo ustvariti verodostojne ali celo fotorealistične upodobitve človeških podob. Računalniško upodobitev človeške podobe je možno izvesti na več različnih načinov in v različnih formatih. V moji diplomski nalogi se bom osredotočil na slikovni format prikaza podobe, natančneje obraza. Obraze bom generiral z algoritmi in metodami umetne inteligence, glavna med njimi bo GAN (angl. Generative Adversarial Network).
 
-Natančneje v diplomski nalogi poskusimo zgraditi najboljši napovedni model, ki bi na podlagi obraza otroka generiral čim boljša približka obrazov mame in očeta. Diplomsko nalogo s podobno tematiko je že naredil Nejc Šuklje, vendar se je on ukvarjal z generiranjem slik otrok na podlagi slik staršev, ravno obratno od moje teme. Oba sva uporabila predhodno nedokončano delo Matjaža Mava, ki je bila dobra podlaga za nadgradnjo in dopolnitev celotne metode. 
+Natančneje, v diplomski nalogi poskusimo zgraditi najboljši napovedni model, ki bi na podlagi obraza otroka generiral čim boljša približka obrazov mame in očeta. Diplomsko nalogo s podobno tematiko je že naredil Nejc Šuklje \cite{ŠUKLJE_2022}, vendar se je on ukvarjal z generiranjem slik otrok na podlagi slik staršev, ravno obratno od moje teme. Oba sva uporabila predhodno nedokončano delo Matjaža Mava, ki je bila dobra podlaga za nadgradnjo in dopolnitev celotne metode. 
 
 
 \section{Motivacija}
-Zakaj ljudje živimo? Kaj je cilj vsakega posameznika v življenju? V kaj vložimo veliko truda tekom življenja? Za veliko ljudi na ta vprašanja je odgovor v reprodukciji oziroma otrocih. Verjetno veliko ljudi, ki ima namen vzgojiti otroka, zanima kakšne fizične atribute bodo podedovali in od katerega starša bodo. 
+Zakaj ljudje živimo? Kaj je cilj vsakega posameznika v življenju? V kaj vložimo veliko truda tekom življenja? Za veliko ljudi je odgovor na ta vprašanja v reprodukciji oziroma otrocih. Verjetno veliko ljudi, ki ima namen vzgojiti otroka, zanima kakšne fizične atribute bodo podedovali in od katerega starša bodo. 
 
 Prav zaradi tega nakaj dobrih implementacij na tematiko generiranja slik obrazov otrok na podlagi slik staršev že obstaja. Najboljše izmed njih so ChildGAN\cite{cui2021heredity}, KinshipGAN\cite{zkan2018KinshipganSO} in DNA-Net\cite{Gao2021WhatWY}, v prihodnjem poglavju jih bom podrobneje predstavil.
 
@@ -382,19 +383,25 @@ Nisem pa našel, do začetka pisanja diplomske naloge, nobene implementacije gen
 
 
 \section{Opis problema}
-Človeški možgani lahko s pomočjo analize razlikovalnih vzorcev delov obraza prepoznajo sorodstvene vezi na fotografijah, kar je dokaz, kako izjemno kompleksni so. Natančne in uporabne metode za preverjanje sorodstva s pomočjo računalniške analize \cite{KINNET}, \cite{KinshipCNN}, \cite{FIWverification} obstajajo že nekaj let, saj so modeli na osnovi učenja globokih mrež pokazali impresivne sposobnosti za avtomatsko izvlečenje vzorcev sorodnosti iz obrazov. Te metode prekašajo sposobnosti človeškega zaznavanja pri različnih problemih sorodstvene verifikacije in identifikacije. 
-Verifikacija je problem, predstavljen s 1-1 preslikavo danega obraza proti znani identiteti. (Ali je to ta oseba?). Identifikacija pa je problem, predstavljen s 1-n preslikavo danega obraza proti dani bazi slik obrazov (Kdo je ta oseba?). V evaluaciji lastne metode bomo probali rešiti problem verifikacije. Določenemu otroku bomo poskušali generirati čim bolj skladna starša, njuni identiteti pa bomo nato verificirali s resničnimi slikami staršev tega otroka. Zato bom pri evaluaciji namesto metod za preverjanje sorodstva opisanih zgoraj, uporabljal bolj splošne metode za identifikacijo oziroma verifikacijo obrazov kot so FaceNet \cite{facenet}, ArcFace \cite{arcface}, VGG-Face \cite{Parkhi15}
+Človeški možgani lahko s pomočjo analize razlikovalnih vzorcev delov obraza prepoznajo sorodstvene vezi na fotografijah, kar je dokaz, kako izjemno kompleksni so. Natančne in uporabne metode za preverjanje sorodstva s pomočjo računalniške analize \cite{KINNET, KinshipCNN, FIWverification} obstajajo že nekaj let, saj so modeli na osnovi učenja globokih mrež pokazali impresivne sposobnosti za avtomatsko ekstrakcijo vzorcev sorodnosti iz obrazov. Te metode prekašajo sposobnosti človeškega zaznavanja pri različnih problemih sorodstvene verifikacije in identifikacije. 
+Verifikacija je problem, predstavljen s 1-1 preslikavo danega obraza proti znani identiteti. (Ali je to ta oseba?). Identifikacija pa je problem, predstavljen s 1-n preslikavo danega obraza proti dani bazi slik obrazov (Kdo je ta oseba?). Pri ocenjevanju lastne metode bomo probali rešiti problem verifikacije. Določenemu otroku bomo poskušali generirati čim bolj skladna starša, njuni identiteti pa bomo nato verificirali z resničnimi slikami staršev tega otroka. Zato bom pri ovrednotenju namesto metod za preverjanje sorodstva opisanih zgoraj, uporabljal bolj splošne metode za identifikacijo oziroma verifikacijo obrazov kot so FaceNet \cite{facenet}, ArcFace \cite{arcface}, VGG-Face \cite{Parkhi15}
 
 \section{Struktura naloge}
-Diplomska naloga je sestavljena iz šest poglavij,
+Diplomska naloga je sestavljena iz šestih poglavij,
 
-Uvod opiše osnoven problem in poda motivacijo za delo. V drugem poglavju so opisane že znane sorodne metode, ki so zgrajene na primerljivi metodologiji. Specifična metodologija lastne in skupne implementacije je opisana v tretjem poglavju. Četrto poglavje predstavi celotno implementacijo metode. Opiše strukturo zbirke slikovnih podatkov, predstavi skupni del, ki ga je pripravil Matjaž Mav in na koncu še lastno implementacijo metode za generiranje slik staršev na podlagi slik otrok. V petem poglavju so rezultati, ki sem jih generiral z metodo evaluirani in vizualizirani. Zadnje, šesto, poglavje pa zaključi celotno diplomsko delo in poda sklepne ugotovitve ter mogoče izboljšave in dopolnitve.
+Uvod opiše osnoven problem in poda motivacijo za delo. V drugem poglavju so opisane že znane sorodne metode, ki so zgrajene na primerljivi metodologiji. Specifična metodologija lastne in skupne implementacije je opisana v tretjem poglavju. Četrto poglavje predstavi celotno implementacijo metode. Opiše strukturo zbirke slikovnih podatkov, predstavi skupni del, ki ga je pripravil Matjaž Mav in na koncu še lastno implementacijo metode za generiranje slik staršev na podlagi slik otrok. V petem poglavju so rezultati, ki sem jih generiral z metodo ovrednoteni in vizualizirani. Zadnje, šesto poglavje, pa zaključi celotno diplomsko delo in poda sklepne ugotovitve ter mogoče izboljšave in dopolnitve.
 
 \chapter{Pregled področja}
 
 \section{Znane metode}
+Metode za napovedovanje in generiranje obrazov staršev iz slik njihovih otrok, ob začetku pisanja te diplomske naloge, še ni bilo, zato je bilo vrednotenje oziroma primerjava rezultatov otežena.
+Obstajaja pa nekaj metod, s pomočjo katerih lahko napovedujemo obraze otrok iz slik njihovih staršev. 
+
+Neposredna primerjava metod enega in drugega problema ni najbolj smiselna, saj je problem drugačen, kljub temu, da ga lahko rešimo s podobnimi metodologijami.
+Predstavil bom tri metode za generiranje slik otrok na podlagi slik staršev.
+
 \subsection{KinshipGAN}
-KinshipGAN \cite{zkan2018KinshipganSO} je najstarejša izmed treh metod opisanih tukaj, zato tudi najbolj zastarela. Pričakovano generira slike z slabšo kvaliteto od drugih dveh metod. Metoda slik ne pretvarja v latentni prostor s pomočjo nvidijine StyleGAN tehnologije, vendar uporablja svoj GAN, ki je bil dobra podlaga za začetek raziskovanja o tej tehnologiji. 
+KinshipGAN \cite{zkan2018KinshipganSO} je najstarejša izmed treh metod opisanih tukaj, zato tudi najbolj zastarela. Pričakovano generira slike z slabšo kvaliteto od drugih dveh metod. Metoda slik ne pretvarja v latentni prostor s pomočjo nvidijine StyleGAN \cite{karras2019style} tehnologije, vendar uporablja svoj GAN, ki je bil dobra podlaga za začetek raziskovanja o tej tehnologiji. 
 \subsection{ChildGAN}
 Publikacija z originalnim naslovom \textbf{Heredity-aware Child Face Image Generation with Latent Space Disentanglement} \cite{cui2021heredity} predstavi nov način generiranja obraznih struktur imenovan \textbf{ChildGAN}. Temelji na tehnologiji razviti pri podjetju Nvidia imenovani StyleGAN. Osnovna ideja je razplet latentnega prostora že prednaučenega generativnega modela. To omogoči natančno semantično določanje posameznih obraznih atributov in struktur. Razdalje med obraznimi atributi so uporabljene kot psevdo-oznake za določanje najbolj pomembnih atributov (predstavljenih s semantičnimi vektorji). Avtorji s pomočjo genetskih zakonitosti združijo semantične vektorje staršev v združen latentni vektor. Ta metoda naj bi delovala bolje od drugih že znanih, ki so opisane kasneje in velja za state-of-the-art.
 \subsection{DNA-Net}
@@ -403,7 +410,7 @@ Avtorji publikacije z originalnim naslovom \textbf{What will your child look lik
 
 
 \chapter{Metodologija}
-Metoda temelji na tehnologiji dveh konvolucijskih nevronskih mrež, ki sestavljata generativno nasprotniško mrežo (GAN), bolj specifično nvidijin StyleGAN2. S katero lahko posamezno sliko obraza predstavimo v latentnem prostoru, povedano enostavneje, z vektorjem nižjih dimenzij od prvotne slike. Predstavitev slike v latentnem prostoru ohrani večino informacije o njej, zato lahko z obratnim procesom sliko generiramo iz predstavitve v latentnem prostoru. Latentni prostor omogoča veliko hitrejše in bolj efektivno računanje, zato lahko napovedni model zgradimo na več podatkih oziroma slikah. 
+Metoda temelji na tehnologiji dveh konvolucijskih nevronskih mrež, ki skupaj tvorita generativno nasprotniško mrežo (GAN), bolj specifično nvidijin StyleGAN2. S katero lahko posamezno sliko obraza predstavimo v latentnem prostoru, povedano enostavneje, z vektorjem nižjih dimenzij od prvotne slike. Predstavitev slike v latentnem prostoru ohrani večino informacije o njej, zato lahko z obratnim procesom sliko generiramo iz predstavitve v latentnem prostoru. Latentni prostor omogoča veliko hitrejše in bolj efektivno računanje, zato lahko napovedni model zgradimo na več podatkih oziroma slikah. 
 
 
 \section{Generativne nasprotniške mreže}
@@ -413,8 +420,8 @@ StyleGAN je v sami osnovi generativna nasprotniška mreža (ang. General Adversa
 \min_{G}\max_{D} \mathcal{V}(G, D) = \mathbb{E}{\boldsymbol{x} \sim p_{data}(\boldsymbol{x})} [\log D(\boldsymbol{x})] + \mathbb{E}{\boldsymbol{z} \sim p{z}(\boldsymbol{z})} [\log (1 - D(G(\boldsymbol{z})))],
 \end{equation}
 
-Enačba 3.1 prestavlja izgubo nasprotniških strani (ang. adversarial loss). Cilj je minimizacija razlik med distribucijama resničnih in umetnih podatkov. Generator poskuša izgubo minimizirati, diskriminator pa maksimizirati. 
-Generator na vhod dobi šum z in generira umetno sliko G(z). Diskriminator nato dobi na vhod realno sliko x in umetno generirano sliko G(z). Med učenjem pokuša diskriminator čim bolj ločiti med realnimi x in umetnimi G(z) primeri tako, da za umetni primer vrne verjetnost, ki je blizu 0, za realni primer pa verjetnost bližje 1. V idealnem primeru za diskriminator bi bila vrednost funkcije 1. Ravno obratno počne generator, ki poskuša minimizirati vrednost funkcije, in s tem čim bolje naučiti porazdelitev slik v učni množici, tako pa prevarati diskriminator.
+Enačba 3.1 prestavlja izgubo nasprotniških strani (ang. adversarial loss). Cilj je minimiziranje razlik med distribucijama resničnih in umetnih podatkov. Generator poskuša izgubo minimizirati, diskriminator pa maksimizirati. 
+Generator na vhod dobi šum $z$ in generira umetno sliko G(z). Diskriminator nato dobi na vhod realno sliko x in umetno generirano sliko G(z). Med učenjem pokuša diskriminator čim bolj ločiti med realnimi x in umetnimi G(z) primeri tako, da za umetni primer vrne verjetnost, ki je blizu 0, za realni primer pa verjetnost bližje 1. V idealnem primeru za diskriminator bi bila vrednost funkcije 1. Ravno obratno počne generator, ki poskuša minimizirati vrednost funkcije, in s tem čim bolje naučiti porazdelitev slik v učni množici, tako pa prevarati diskriminator.
 
 
 \section{StyleGAN}
@@ -432,7 +439,7 @@ Od klasičnega GANa, se StyleGAN razlikuje samo v generatorju. Karras et al. so 
 \end{figure}
 
 
-AdaIN (ang. Adaptive Instance Normalization) \cite{huang2017adain} je normalizacijska tehnika, uporabljena za prenos poljubnega sloga med slikami v realnem času. Algoritem sestavlja kodirnik, ki sliko s vsebino in sliko sloga preslika v latentni prostor značilk in vrne značilki x in y. Sliki predstavljeni v latentnem prostoru sta nato poslani v sloj AdaIN, kateri v vsakem kanalu slik uravna srednjo vrednost $\mu$ in standardni odklon $\sigma$ značilk x slike s vsebino s srednjo vrednostjo in standardnim odklonom značilk y slike s slogom. Na koncu naučeno dekodirno omrežje generira novo slogovno spremenjeno sliko z invertiranjem izhoda AdaIN nazaj v prostor originalne slike s vsebino. 
+AdaIN (ang. Adaptive Instance Normalization) \cite{huang2017adain} je normalizacijska tehnika, uporabljena za prenos poljubnega sloga med slikami v realnem času. Algoritem sestavlja kodirnik, ki sliko z vsebino in sliko sloga preslika v latentni prostor značilk in vrne značilki x in y. Sliki predstavljeni v latentnem prostoru sta nato poslani v sloj AdaIN, kateri v vsakem kanalu slik uravna srednjo vrednost $\mu$ in standardni odklon $\sigma$ značilk x slike z vsebino s srednjo vrednostjo in standardnim odklonom značilk y slike s slogom. Na koncu naučeno dekodirno omrežje generira novo slogovno spremenjeno sliko z invertiranjem izhoda AdaIN nazaj v prostor originalne slike z vsebino. 
 
 \begin{equation}
 \text{AdaIN}(x,y) = \sigma(y) \frac{x - \mu(x)}{\sigma(x)} + \mu(y),
@@ -460,7 +467,7 @@ Generiranje slik poteka v sinteznem omrežju g, ki ga sestavlja 18 konvolucijski
 \begin{center}
   \includegraphics[width=0.7\textwidth]{images/stylegan_architecture.png}
 \end{center}
-  \caption{Arhitektura StyleGAN generatorja}
+  \caption{Arhitektura StyleGAN generatorja \cite{karras2019style}}
   \label{AdaIN}
 \end{figure}
 
@@ -703,34 +710,247 @@ V našem primeru je neodvisna spremenljivka latentna koda, pridobljeno iz določ
 \section{Struktura projekta}
 Projekt je narejen v okviru sistema za upravljanje paketov Conda \cite{conda}, tako je lahko pognan s pomočjo Conde na katerem koli računalniku neodvisno od že nameščenih Python knjižnic. Conda omogoča enostavno vzpostavitev Python virtualnega okolja, znotraj katerega na začetku namestimo vse potrebne knjižnice, kodo pa potem poganjamo na Python prevajalniku iz Conda virtualnega okolja.
 
-Pri razvoju smo uporabljali sistem za nadzor različic (ang. Version control system) GitHub \cite{github}, ki je predvsem omogočil enostavnejšo integracijo dveh zunanjih modulov StyleGAN2 (v repozitoriju NVlabs/stylegan2-ada-pytorch) \cite{stylegan2adapytorch} in InterfaceGAN (v repozitoriju genforce/interfacegan) \cite{interfacegan} v projekt. S pomočjo GitHubovih submoddulov smo v projekt vključili obe zbirki podatkon NOKDB in PPLDB, za katera smo ustvarili ločena repozitorija za bolj efektivno razmnoževanje projekta v prihodnosti.
+Pri razvoju smo uporabljali sistem za nadzor različic (ang. Version control system) GitHub \cite{github}, ki je predvsem omogočil enostavnejšo integracijo dveh zunanjih modulov StyleGAN2 (v repozitoriju NVlabs/stylegan2-ada-pytorch) \cite{stylegan2adapytorch} in InterfaceGAN (v repozitoriju genforce/interfacegan) \cite{interfacegan} v projekt. S pomočjo GitHubovih submoddulov smo v projekt vključili obe zbirki podatkov NOKDB in PPLDB, za katera smo ustvarili ločena repozitorija za bolj efektivno razmnoževanje projekta v prihodnosti.
 
 \subsection{Organizacija kode}
-\subsection{Struktura nabora slikovnih podatkov}
-\subsubsection{NOKDB}
-\subsubsection{PPLDB}
 
+Celoten projekt zajema več repozitorijev. 
+
+
+
+
+\subsection{Struktura nabora slikovnih podatkov}
+\subsubsection{NOKDB \cite{}}
+Za učenje napovednih modelov potrebujemo čim bolj kvalitetne podatke, saj je od njih precej odvisna kakovost naučenih modelov. Zato smo uporabili nov nabor podatkov, ki omogoča učenje modelov na podlagi sorodstev. Next Of Kin (NOK) vsebuje 3690 512×512 slik visoke ločljivosti obrazov 553 različnih ljudi z veliko etnično in starostno raznolikostjo. V nabor podatkov so vključeni tudi metapodatki o sorodstvenih vezeh, starosti, etnični pripadnosti, spolu in izrazu obraza.
+
+Nabor podatkov vsebuje več kot 120.000 trojic oče - mama - otrok na katerih je potekalo učenje modelov. Vse slike v naboru podatkov so bile predprocesirane. Najprej so bili poiskani obrazni atributi in glede na njihovo pozicijo so bile slike obrezane in pravilno orientirane. Nato so bile vse slike projecirane v W+ latentni prostor (latentni prostor prednaučenega StyleGAN2 FFHQ modela), latentna koda (iid.npz) se nahaja poleg vsake izmed slik. Na koncu so bili dodani metapodatki o spolu, etnični pripadnosti vsaki osebi in starost in podatek o izrazu na obrazu vsaki izmen slik.
+
+Podani so tudi uradni učni, validacijski in testni split, kjer so trojice oče - mama - otrok razporejene tako, da se slike specifičnega otroka ne pojavijo v več kot enem izmed njih. Spliti so definirani v datotekah nokdb-samples, poleg treh ki se uporabljajo za učenje in izboljševanje modela smo pripravili še dva druga splita, ki se uporabljata za generiranje realnih slik staršev iz slik otrok ali sli otrok iz lik staršev. Latentne kode za te slike pridejo v NOKDB iz slikovne podatkovne zbirke PPLDB.
+
+\begin{center}
+  \begin{tabular}{|l|l|}
+  \hline
+  Značilnosti nabora podatkov & Število \\
+  \hline
+  persons & 1116 \\
+  images & 3690 \\
+  images per person & 3.31 \\
+  image sample combinations & 127,719 \\
+  father/mother/son person triplets & 116 \\
+  father/mother/daughter person triplets & 133 \\
+  image resolution & 512x512 \\
+  \hline
+  \end{tabular}
+\end{center}
+
+\begin{center}
+  \begin{tabular}{|l|l|}
+  \hline
+  Pot & Opis \\
+  \hline
+  |- nokdb-images.csv & Seznam slik z atributi \\
+  |- nokdb-persons.csv & Seznam oseb z atributi \\
+  |- nokdb-samples-test.csv & Trojčki oče-mama-otrok (testni) \\
+  |- nokdb-samples-train.csv & Trojčki oče-mama-otrok (učni) \\
+  |- nokdb-samples-validation.csv & Trojčki oče-mama-otrok (validacijski) \\
+  |- nokdb-samples-all.csv & Trojčki oče-mama-otrok (vsi) \\
+  |- nokdb-samples-real-c2p.csv & Trojčki oče-mama-otrok za generiranje staršev \\
+  |- nokdb-samples-real-p2c.csv & Trojčki oče-mama-otrok za generiranje otrok \\
+  |- nokdb-normalization.npz & W vektor normalizacija povprečje \\ & in standardni odklon za vsako dimenzijo \\
+  \hline
+  \end{tabular}
+\end{center}
+
+\begin{center}
+  \begin{tabular}{|l|l|}
+  \hline
+  Poti & Opis \\
+  \hline
+  |- pid0/ & Direktorij, ki vsebuje nabor podatkov osebe `pid0` \\
+  |----- iid0.png & Slika `iid0`, ki pripada osebi `pid0` \\
+  |----- iid0.npz & StyleGAN2 latentna koda slike `iid0` \\
+  |----- iid1.png & Slika `iid1`, ki pripada osebi `pid0`\\
+  |----- iid1.npz & StyleGAN2 latentna koda slike `iid1`\\
+  |- pid1/ & \\
+  |----- ... & \\
+  |- ... & \\
+  \hline
+  \end{tabular}
+\end{center}
+
+
+\subsubsection{PPLDB}
+Medtem ko je NOKDB usmerjen pretežno v učenje modelov in kvalitete teh, smo opazili potrebo po lastnem naboru podatkov, v katerem bodo hranjeni slikovni podatki iz spletne aplikacije, kjer je model uporabljen. Tu se predvsem kopičijo slike, ki so lahko kasneje ali avtomatsko migrirane v NOKDB, za ponovno učenje napovednih modelov. Podobno kot NOKDB tudi PPLDB na začetku slike predprocesira. Najprej so slike obrezane in rotirane na podlagi zaznanih obraznih atributov. Nato so projecirane v StyleGAN2 FFHQ latentni prostor W+, latentne kode pa so shranjene, poleg podatkov o loss in gain pri projekciji, v PPLDB.  
+
+V datoteki nokdb-mapping.csv so hranjeni podatki o mapiranju oseb iz PPLDB v NOKDB. Zapisano je njihov pid iz PPLDB in njihov pid iz NOKDB. V datoteki couples.csv so hranjeni podatki o parih oseb, katerim lahko generiramo otroka. Potrebna je predhodna migracija podatkov o paru iz PPLDB v NOKDB.
+
+\begin{center}
+  \begin{tabular}{|l|l|}
+  \hline
+  Pot & Opis \\
+  \hline
+  |- couples.csv & Seznam parov, katerim generiramo otroka \\
+  |- nokdb-mapping.csv & Seznam oseb z pripisanim NOKDB pid \\
+  \hline
+  \end{tabular}
+\end{center}
+
+\begin{center}
+  \begin{tabular}{|l|l|}
+  \hline
+  Poti & Opis \\
+  \hline
+  |- pid0/ & Direktorij, ki vsebuje podatke osebe `pid0` \\
+  |---- latents/ & Direktorij, ki vsebuje latentne podatke osebe `pid0` \\
+  |-------- latents\_pid0\_iid0/ & Direktorij, ki vsebuje latentne podatke slike `pid0\_iid0` \\
+  |------------ target.png & Predprocesirana slika `iid0`, ki pripada osebi `pid0` \\
+  |------------ proj.png & Slika, pripadajoča generirani latentni kodi \\
+  |------------ projected\_w.npz & Generirana latentna koda v prostoru W+ \\
+  |------------ loss.png & Graf loss in dist, glede na korak projekcije \\
+  |-------- latents\_pid0\_iid1/ & Direktorij, ki vsebuje latentne podatke slike `pid0\_iid0` \\
+  |------------ iid1.png & Predprocesirana slika `iid1`, ki pripada osebi `pid0`\\
+  |------------ iid0.png & Predprocesirana slika `iid0`, ki pripada osebi `pid0` \\
+  |---- aligned/ & Direktorij, ki vsebuje predprocesirane osebe `pid0` \\
+  |-------- pid0\_iid0.png & Predprocesirana slika `iid0`, ki pripada osebi `pid0` \\
+  |-------- pid0\_iid1.png & Predprocesirana slika `iid1`, ki pripada osebi `pid0`\\
+  |---- pid0\_iid0.png & Originalna slika `iid0`, ki pripada osebi `pid0`\\
+  |---- pid0\_iid1.png & Originalna slika `iid1`, ki pripada osebi `pid0`\\
+  |- pid1/ & Direktorij, ki vsebuje podatke osebe `pid1`\\
+  |----- ... & \\
+  |- ... & \\
+  \hline
+  \end{tabular}
+\end{center}
+
+
+
+  
 \section{Opis uporabljenih tehnologij in metod}
 \subsection{StyleGAN}
 \subsection{Interfacegan}
 \subsection{Wandb}
 
 \section{Skupna implementacija}
+Matjaž Mav je pripravil osnovno implementacijo, katero sem v okviru moje diplomske naloge samo razširil in v določenih delih spremenil ter dopolnil. Matjaž je najprej implementiral vmesnik za pridobivanje strukturiranih podatkov iz slikovne podatkovne zbirke NOKDB na več različnih načinov - datoteke v direktoriju fri-2022-diploma/src/dataset. V direktoriju fri-2022-diploma/src/utils je implementiral podporne mehanizme za izvajanje programa - vmesnik za StyleGAN2 submodul, funkcije za vizualizacijo in funkcije za pridobivanje podatkov iz GitHuba (prenos zbirke podatkov). V direktoriels so delno dokočane implementacije različnih napovednih modelov, ki jih je Matjaž testiral.
+
+\subsection{Vmesnik za pridobivanje strukturiranih podatkov iz slikovne podatkovne zbirke NOKDB}
+Osnovna naloga vmesnika je pridobivanje podatkov - latentnih kod, iz zbirke slikovnih podatkov NOKDB, s katerimi potem operiramo pri učenju, validaciji ali testiranju modelov. Uporabljen je tudi za pridobivanje latentnih kod, ki se uporabijo za generiranje slik staršev oziroma otrok iz realnih slik. 
+
+
+
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{images/mean_before.png}
+\end{center}
+  \caption{Slike, ki predstavljajo eno osebo v zbirki podatkov NOKDB}
+  \label{Slike, ki predstavljajo eno osebo v zbirki podatkov NOKDB}
+\end{figure}
+
+
+\begin{figure}[htb]
+\begin{center}
+  \includegraphics[width=0.5\textwidth]{images/mean_after.png}
+\end{center}
+  \caption{Povprečna slika osebe, generirana iz povprečne latentne kode vseh slik te osebe v zbirki podatkov NOKDB}
+  \label{Povprečna slika osebe, generirana iz povprečne latentne kode vseh slik te osebe v zbirki podatkov NOKDB}
+\end{figure}
+
+Vmesnik je implementiran kot Python razred, kateremu ob inicializaciji podamo določene parametre, od katerih je odvisno kateri podatki se pridobijo iz podatkovne zbirke NOKDB. Osnovna funkcija razreda je dovajanje podatkov (latentnih vektorjev) v razredno spremenljivko data, odvisno od podanega splita - train/validation/test oziroma P2C ali C2P. Informacije o tem kateri latentni vektorji (katera starša pripadata kateremu otroku in obratno) se naložijo v spremenljivko data pa vmesnik pridobi iz datotek nokdb-samples, odvisno od podanega splita.
+ 
+Funkcija, v kateri je implementirano nalaganje vektorjev je zasnovana tako, da latentne kode posameznega človeka združi v eno - naredi povprečje vseh latentnih kod, ki se potem uporabi v nadaljnem napovedovanju (učenje/validacija/testiranje oziroma generiranje rezultatov). Takšen način se je izkazal za najbolj učinkovitega pri končnem generiranju rezultatov. Poleg opisanega vmesnika, ki pridobi s povprečjem združeno latentno kodo posameznika, smo implementirali tudi druge, vendar se niso izkazali za tako natančne pri nadaljnem napovedovanju.  
+
+
+
+
+\subsection{Vmesnik za StyleGAN2 submodul}
+Uporaba StyleGAN2 arhitekture, je omogočena skozi vmesnik implementiran v datoteki fri-2022-diploma/src/utils/stylegan.py. V okviru vmesnika sta za uporabo podani dve osnovni StyleGAN2 operaciji project in generate, z različnimi možnostmi podajanja argumentov. Vmesnik izvaja python skripte definirane v submodulu repozitorija stylegan2-ada-pytorch \cite{stylegan2adapytorch} preko Docker zabojnika nad sliko stylegan2-ada-pytorch:latest, tako je zasnovan robustno, saj ni neposredno odvisen od okolja, v katerem ga poganjamo.
+
+\subsection{Napovedni modeli}
+Matjaž Mav je v okviru svoje naloge implementiral in testiral več napovednih modelov, vendar so bili ti narejeni za generacijo sli otrok na podlagi slik staršev, jaz pa v svoji nalogi potrebujem napovedni model za napovedovanje staršev iz otrok. 
 
 \section{Lastna implementacija}
-\subsection{Generacija prvotnih slik staršev}
-\subsection{Izboljšava slik staršev}
+Osnovno implementacijo sem sam razširil predvsem z novim modelom, ki iz slik otrok generira slike staršev, za kar sem moral prilagoditi tudi ostale podporne mehanizme. 
+Drugi dodatek pa je implementacija in integracija nove podatkovne zbirke PPLDB, ki omogoča vnos novih oseb in razmerij med osebami v podatkovno zbirko NOKDB. Zadnja stvar, ki sem jo naredil je ovrednotenje generiranih slik in vizualizacija teh rezultatov.
+
+\subsection{PPLDB}
+Za implementacijo nove zbirke podatkov in njenih podpornih mehanizmov smo se odločili zaradi potrebe po širši uporabi sistema. PPLDB omogoča dodajanje novih oseb in njenih slik v celoten sistem. V nadaljevanju bomo glede na tok podatkov ene osebe opisali funkcionalnosti sistema PPLDB.
+
+Slike osebe shranimo v nov direktorij poimenovan po osebi v direktoriju 
+fri-2022-diploma/src/dataset/ppldb, npr. \break
+fri-2022-diploma/src/dataset/ppldb/vid/slika1.jpg,
+Ob naslednjem zagonu programa se sproži podatkovni cevovod, ki bo omogočil generiranje slik staršev. Najprej se požene funkcija, ki dodani osebi pripiše identifikacijsko številko PPLDB in slike prestavi v nov direktorij, ter jih hkrati preimenuje v standardizirano ime "ime\_iid"npr. \break
+fri-2022-diploma/src/dataset/ppldb/people/ppldb\_pid/vid\_1.jpg. 
+Takoj za tem poteče predprocesiranje slik, kjer so obrezane in rotirane na podlagi zaznanih obraznih atributov. To je ključnega pomena za nadaljno uporabo slik pri generiranju latentnih kod, kar je naslednji korak. Vsaka slika, ki je bila uspešno predprocesirana je nato projecirana v latentni prostor s pomočjo StyleGAN2 funkcije project, ki jo kličemo preko vmesnika za StyleGAN2 submodul. Rezultat projekcije so latentne kode, graf spreminjanja rezultata funkcije izgube in razdalje skozi iteracije projekcije in slika, ki prikazuje generirano latentno kodo v originalnem nelatentnem prostoru.
+
+Osnovna funkcija zbirke podatkov PPLDB je le shranjevanje latentnih kod, ki pripadajo realnim slikam. Njena uporabnost pa je v tem, da dovaja podatke v zbirko podatkov NOKDB preko katere kasneje poteka pridobivanje podatkov za generiranje slik staršev.
+
+\subsection{Generacija slik staršev}
+Celoten proces generacije slik staršev s pomočjo že naučenega modela je razdeljen na več manj obsežnih operacij. Najprej, poteče operacija opisana v prejšnjem podpoglavju - populacija PPLDB baze s latentnimi kodami slik in migracija teh latentnih kod in ostalih podatkov v podatkovno zbirko NOKDB. 
+
+Nato se preko vmesnika, opisanega v poglavju \textbf{Vmesnik za pridobivanje strukturiranih podatkov iz slikovne podatkovne zbirke NOKDB} pridobijo podatki, ki jih nato pošljemo v določen model. Podatki so povprečne latentne kode, izračunane iz latentnih kod vseh slik določene osebe.
+
+Prednaučen model linearne regresije potem generira latentne kode najbolj verjetnih staršev za podane latentne kode. 
+
+Zadnji korak pred ovrednotenjem rezultatov je generacija slik iz generiranih latentnih kod. Končne slike generiramo s pomočjo modula opisanega v poglavju \textbf{Vmesnik za StyleGAN2 submodul}. Znotraj modula kličemo StyleGAN2 funkcijo generate, ki podanemu nizu latentnih kod generira pripadajoče slike. Preden poteče ovrednotenje rezultatov slike še zložimo v kolaž, da je pregledovanje rezultatov bolj pregledno.
 
 
 
-\chapter{Evaluacija rezultatov}
+\subsection{Rezultati}
+
+Predstavili bomo rezultate pridobljene na dva različna načina, glede na vhodne podatke. 
+Prvi način so rezultati pridobljeni le s pomočjo podatkovne zbirke NODKB, kjer je model naučen in testiran le na podatkih iz te zbirke (ločeni podatki za učenje in testiranje modela).
+Pri drugem načinu pa bomo predstavili rezultate pridobljene s pomočjo modela naučenega na vseh NOKDB podatkih, testiranje pa poteka na lastnih oziroma zunanjih slikah, ki smo jih v NOKDB podatkovni zbirko vnesli preko sistema PPLDB.
+V poglavju Ovrednotenje bomo rezultate kvalitativno ovrednotili s pomočjo tehnik razpoznavanja obrazov, v tem poglavju pa bomo le podali slikovne rezultate in jih vizualno opisali ter razložili možne napake v generiranju oziroma opredelili vizualne artefakte.
+
+
+\subsubsection{NOKDB rezultati}
+Ti rezultati so bili pridobljeni z enakim načinom kot poteka ovrednotenje, opisano kanseje. V tem poglavju bom le vizualno predstavil pridobljene slike.
+Na prvi pogled delujejo generalno rezultati precej dobri, brez veliko vidnih artefaktov, vendar se tudi ti občasno pojavljajo. Artefakti se po navadi pojavijo v primerih, kjer poskušamo generirati starše odraslemu človeku. Razlog za to je v tem, da modela nismo učili na slikah, kjer bi bili otroci že starejši (ali pa je bilo teh primerov v učni množici premalo). 
+Temu bi se lahko izognili, če bi ob generiranju preverjali starost otroka in ustrezno prilagodili sliko (oziroma latentno kodo) tako, da bi mu zmanjšali starost brez spremembe identitete. To bi lahko impelementirali s pomočjo submodula InterfaceGAN. 
+
+Če vizualno primerjamo generirane starše realnim, ugotovimo da model bolje napoveduje mamo kot očeta, česar nismo mogli spremeniti kljub drugačni postavitvi značilk pri vhodu v linearno regresijo. Za ugotovitev zakaj je to tako, bi potrebovali več časa.
+
+\subsubsection{Lastni rezultati}
+
+
+\chapter{Ovrednotenje rezultatov}
+
+Da bi ovrednotili podobnost identitet generiranih slik staršev z realnimi slikami bomo uporabili različne modele za razpoznavo obrazov.
+Takšnih modelov je kar nekaj, mi bomo uporabljali tri precej splošno razširjene FaceNet \cite{facenet}, ArcFace \cite{arcface} in VGG-Face \cite{vggface}.
+
+
 \section{Deepface knjižnica za razpoznavo obrazov}
-\section{Evaluacija}
+Deepface je python knjižnica oziroma ogrodje, ki omogoča hitro in enostavno uporabo state-of-the-art modelov za razpoznavo obrazov, prepoznavo obrazov, podobnost obrazov in analizo obraznih atributov. 
+Vsebuje implementacije VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, ArcFace, Dlib in SFace modelov.
+Uporabili smo jo, ker je zelo enostavna za uporabo in smo jo zlahka vključili v lastno implementacijo razreda, namenjenega ovrednotenju rezultatov.
+Knjižico smo uporabili le za eno funkcijo, ki iz določene slike obraza pridobi skrčeno predstavitev oziroma nek vektor, ki predstavlja atribute obraza (ang. embedding).
+
+\section{Ovrednotenje}
+Po uporabi Deepface knjižnice za pridobitev skrčene predstavitve obraza generirane slike in obraza prave slike enakega primera, ju primerjamo s pomočjo neke razdalje. 
+Razdalja uporabljena v implementaciji je kosinusna, saj je najbolj primerna za vektorje takšnih dimenzij. 
+Pri ovrednotenju smo izbrali strategijo pozitivnih parov, za razliko od drugih podobnih implementacij, ki uporabljajo strategijo pozitivnih in negativnih parov. To pomeni, da smo primerjali le realno sliko starša z generirano sliko starša (strategija pozitivnih parov). 
+Nismo pa tudi primerjali razlike realne slike starša s naključno generirano sliko starša (strategija negativnih parov), saj menimo, da ta razlika ni tako pomembna kot podobnost pozitivnega para.
+
+
+
+
+Napovedni model smo v primeru generiranja slik obrazov staršev, na podlagi slik obrazov otrok, ovrednotili tako, da smo primerjali realne slike obrazov staršev z generiranimi slikami obrazov staršev. 
+To smo za vsak primer naredili s tremi modeli prepoznave obrazov ArcFace, Facenet in VGG-Face. 
+
+Da smo dobili čim bolj spodobne rezultate smo ovrednotenje opravili večkrat, po podobnem principu kot poteka prečna validacija modela (ang. cross validation). To pomeni, da smo model vrednotili v več iteracijah in na koncu vzyeli povprečje rezultatov vseh iteracij, tako so rezultati bolj reprezentativni, kot če bi opravili le eno iteracijo ovrednotenja. Najprej smo razdelili vse otroke na $k$ množic, tako smo po principu k-fold cross validationa v vsaki izmed $k$ iteracij pridobili učno in testno množico podatkov, kjer se je testna množica otrok menjala v vsaki iteraciji. Podatke za učenje in testiranje (kombinacije slik trojice oče-mama-otrok) smo iz zbirke podatkov pridobili preko informacije o tem ali otrok spada v učno ali testno množico podatkov. S pridobljenimi podatko smo pognali učenje modela in testiranje modela na testni množici podatkov. Po vsaki iteraciji smo hranili rezultate primerjav očetov in mam posebej, ter na koncu naredili povprečje vseh iteracij. Iz rezultatov podobnosti smo zgradili histograma, ki prikazujeta števila vzorcev, ki pripadajo določeni gostoti podobnosti med realnim in generiranim parom.
+
+Ker modela za generiranje slik obrazov staršev na podlagi slik obrazev otrok do tega trenutka še ni, našega modela ne moremo neposredno primerjati oziroma ovrednotiti.
+Lahko primerjamo naše vrednosti s vrednostmi modelov za generiranje slik obrazov otrok iz slik staršev, vendar ovrednotenje ne bo validno. 
 \section{Vizualizacija}
 
+Za lažjo predstavo rezultatov smo iz dobljenih kosinusnih podobnosti zgradili histograme.
+To smo naredili tako, da smo za vsak modeli prepoznave obrazov, zgradili histogram napovedi kosinusnih podobnosti in histogram popolnih kosinusnih podobnosti. 
+Za kvantitativno predstavitev rezultatov smo izračunali tudi razliko med napovednim in popolnim histogramom s razdaljo earth mover's distance, ter povprečje kosinusnih podobnosti primerov.
 
-
+    
 \chapter{Sklepne ugotovitve}
+
 \section{Zaključek}
 \section{Primerjava znanih metod z lastno implementacijo}
 \section{Možne izboljšave in dopolnitve}
